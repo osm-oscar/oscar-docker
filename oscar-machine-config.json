@@ -1,0 +1,22 @@
+{
+	"include": "oscar-data-config.json",
+	"store" : {
+		"threadCount" : 4,
+		"blobFetchCount" : 5,
+		"nodeTableSize" : 100000,
+		"grtMinDiag" : 1000
+	},
+	"textsearch" :
+	[
+		{
+			"type" : "oomgeocell",
+			"id" : "oomgeocell",
+			"config" : {
+				"threadCount" : 4,
+				"sortConcurrency" : 2,
+				"payloadConcurrency" : 4,
+				"maxMemoryUsage" : 4096
+			}
+		}
+	]
+}

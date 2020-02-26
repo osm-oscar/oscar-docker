@@ -1,0 +1,50 @@
+{
+    "service" : {
+        "api" : "fastcgi",
+        "socket" : "/run/oscar.sock"
+    },
+    "gzip" : {
+        "level" : 1,
+        "enable" : true
+    },
+    "http" : {
+        "script" : "/oscar"
+    },
+    "localization" : {
+        "locales" : [ "en_US.UTF-8" ]
+    },
+    "logging" : {
+        "level" : "debug",
+        "file" : {"name" : "/var/log/oscar-web/cppcms.log", "append" : true }
+    },
+    "dbfile" :
+        {   "name" : "Planet",
+            "path" : "/oscar-search-files",
+            "logfile": "/var/log/oscar-web/search.log",
+            "limit" : 128,
+            "chunklimit" : 8,
+            "fullsubsetlimit" : 10000,
+            "maxindexdbreq": 1000,
+            "maxitemdbreq": 2000,
+			"maxresultdownloadsize" : 1000000,
+			"cachedGeoHierarchy" : true,
+            "itemstextcompleter" : 0,
+            "geotextcompleter" : 0,
+            "geocompleter" : 0,
+	    	"treedCQR" : true,
+			"treedCQRThreads": 2,
+			"dilationCacheThreshold" : 25,
+			"preload" : ["index", "kvstore", "textsearch"],
+			"celldistance" : "minsphere"
+        },
+    "ghfilters" :
+		[
+			{"name" : "admin_level", "k" : ["admin_level"]},
+			{
+				"name" : "natural_landuse", "k" : ["natural", "landuse"],
+				"kv" : { "admin_level" : ["1", "2", "3", "4", "5", "6"] }
+			},
+			{"name" : "named", "k" : ["name"]}
+		]
+}
+
