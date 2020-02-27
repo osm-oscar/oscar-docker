@@ -1,6 +1,7 @@
 # Running
  * docker run create: downloads a new data set and creates the necessary search files
- * docker run serve: runs oscar
+ * docker run serve: runs oscar-web
+ * docker run clean: clean source/active directory of files
 
 # Environment variables:
  * UPDATES=enabled|disabled: check for new updates every day
@@ -16,8 +17,8 @@
 
 # Volumes
  * /source: contains source data (pbf-files)
- * /tmp/fast: fast block storage (preferably ssd)
- * /tmp/slow: slow block storage (can be on hdd)
+ * /scratch/fast: fast block storage (preferably ssd)
+ * /scratch/slow: slow block storage (can be on hdd)
  * /next: temporary folder where the next search files are created (can be slower fs)
  * /active: currently active search files (should be on a ssd)
  * /archive: historic search files (can be on slower)

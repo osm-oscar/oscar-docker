@@ -1,7 +1,7 @@
 {
     "service" : {
         "api" : "fastcgi",
-        "socket" : "/run/oscar.sock"
+        "socket" : "/run/oscar-web/oscar.sock"
     },
     "gzip" : {
         "level" : 1,
@@ -19,7 +19,7 @@
     },
     "dbfile" :
         {   "name" : "Planet",
-            "path" : "/oscar-search-files",
+            "path" : "/active/latest",
             "logfile": "/var/log/oscar-web/search.log",
             "limit" : 128,
             "chunklimit" : 8,

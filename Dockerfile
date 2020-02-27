@@ -7,7 +7,7 @@ RUN apt-get update \
 		cmake build-essential ragel \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
-		lighttpd cron git-core wget python ca-certificates \
+		lighttpd cron git-core wget python ca-certificates sudo \
 	&& apt-get clean autoclean \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -15,6 +15,8 @@ RUN apt-get update \
 #Install Oscar-create
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar.git oscar \
+	&& git -C /usr/src/oscar checkout 4fc08c6dbbc1a2ba6db102eb6a76df1314662414 \
+	&& git -C /usr/src/oscar submodule update --init --recursive \
 	&& mkdir /etc/oscar-create \
 	&& cp -a  /usr/src/oscar/data/configs/* /etc/oscar-create/ \
 	&& mkdir /usr/src/oscar/build \
@@ -38,6 +40,8 @@ RUN cd /usr/src \
 #Install oscar-web
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web \
+	&& git -C /usr/src/oscar-web checkout bd3e984c2e92e61461e52f68811353ade5b239ff \
+	&& git -C /usr/src/oscar-web submodule update --init --recursive \
 	&& mkdir /etc/oscar-web \
 	&& cp -a /usr/src/oscar-web/website /var/www/oscar \
 	&& mkdir /usr/src/oscar-web/build \
@@ -47,13 +51,16 @@ RUN cd /usr/src/ \
 	&& make -j $(nproc) \
 	&& cp oscar-web /usr/local/bin/ \
 	&& rm -r /usr/src/oscar-web
-COPY oscar-web-config.js /etc/oscar-web/
+
+RUN ldconfig
 
 #Setup lighttpd
 COPY 20-oscar.conf /etc/lighttpd/conf-available/
 RUN ln -s /etc/lighttpd/conf-available/10-fastcgi.conf /etc/lighttpd/conf-enabled/ \
 	&& ln -s /etc/lighttpd/conf-available/10-expire.conf /etc/lighttpd/conf-enabled/ \
-	&& ln -s /usr/share/doc/lighttpd/config/conf.d/mime.conf /etc/lighttpd/conf-enabled/
+	&& ln -s /etc/lighttpd/conf-available/20-oscar.conf /etc/lighttpd/conf-enabled/
+#This is needed on debian
+#	&& ln -s /usr/share/doc/lighttpd/config/conf.d/mime.conf /etc/lighttpd/conf-enabled/
 
 #Setup users
 RUN useradd -U oscar \
@@ -64,19 +71,25 @@ RUN mkdir /var/log/oscar-web && chmod o+rwx /var/log/oscar-web
 
 #Setup directories
 RUN mkdir "/source" \
-	&& mkdir "/tmp/fast" \
-	&& mkdir "/tmp/slow" \
+	&& mkdir "/scratch" \
 	&& mkdir "/next" \
 	&& mkdir "/active" \
 	&& mkdir "/archive"
+
+#Setup oscar-create config
+COPY oscar-machine-config.json /etc/oscar-create/oscar-create/oscar-docker.json
+COPY oscar-data-config.json /etc/oscar-create/oscar-create/
+
+#Setup oscar-web config
+COPY oscar-web-config.js /etc/oscar-web/
 
 #Setup update skript
 COPY oscar-update.sh /usr/local/bin/oscar-update
 RUN chmod +x /usr/local/bin/oscar-update && ln -s /usr/local/bin/oscar-update /etc/cron.daily/
 
-#Setup oscar-create config
-COPY oscar-machine-config.json /etc/oscar-create/oscar-create/oscar-docker.json
-COPY oscar-data-config.json /etc/oscar-create/oscar-create/
+#Setup oscar-web-daemon script
+COPY oscar-web-daemon.sh /usr/local/bin/oscar-web-daemon
+RUN chmod +x /usr/local/bin/oscar-web-daemon
 
 # Start running
 COPY run.sh /

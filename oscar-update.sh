@@ -108,10 +108,8 @@ if [ $? -eq 0 ]; then
     fi
 	mv "${NEXT_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}"
 	chmod -R o=rX "${ACTIVE_DIR}/${CREATION_DATE}"
-	rm /oscar-search-files 2>&1> /dev/null
-	ln -s ${ACTIVE_DIR}/${CREATION_DATE} /oscar-search-files
-
-    #service restart oscar
+	rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
+	ln -s "${ACTIVE_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}/latest"
 
 	echo "Finished update at $(date)"
     exit 0
