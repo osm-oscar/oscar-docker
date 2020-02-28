@@ -3,6 +3,7 @@ FROM ubuntu:19.10
 ENV CMAKE_GCC_VERSION_FOR_LTO=9
 
 RUN apt-get update \
+	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
 		cmake build-essential ragel \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
