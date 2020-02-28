@@ -7,6 +7,7 @@
  * UPDATES=enabled|disabled: check for new updates every day
  * ARCHIVE=enabled|disabled: archive old data
  * CLEAN_ARCHIVE=enabled|disabled: clean archive
+ * SOURCE_REMOTE_URL: url to the data file
 
 # Configuration
 ## oscar-create

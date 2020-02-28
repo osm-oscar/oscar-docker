@@ -11,7 +11,7 @@
 		"oomgeocell_substring.json"
 	],
     "tempdir" : {
-        "fast" : "/scratch/fast/osmc",
-        "slow" : "/scratch/slow/osmc"
+        "fast" : "/scratch/fast/oscar/osmc",
+        "slow" : "/scratch/slow/oscar/osmc"
     }
 }

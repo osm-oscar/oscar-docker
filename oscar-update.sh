@@ -3,11 +3,9 @@ SCRIPT=$(readlink -f $0)
 SCRIPTPATH=`dirname $SCRIPT`
 BASE_PATH=${SCRIPTPATH}
 
-SOURCE_DIR="/source"
+source /etc/oscar-env.sh
+
 CONFIG_DIR="/etc/oscar-create/oscar-create"
-NEXT_DIR="/next"
-ACTIVE_DIR="/active"
-ARCHIVE_DIR="/archive"
 
 CREATION_DATE=$(date +%Y%m%d)
 
@@ -42,11 +40,11 @@ function check_dir_perm() {
 }
 
 check_dir_perm "${SOURCE_DIR}" "source" || exit 1
-check_dir_perm "${CONFIG_DIR}" "config" || exit 1
 check_dir_perm "${NEXT_DIR}" "next" || exit 1
 check_dir_perm "${ACTIVE_DIR}" "active" || exit 1
 check_dir_perm "${ARCHIVE_DIR}" "archive" || exit 1
-
+check_dir_perm "${SCRATCH_SLOW_DIR}" "scratch-slow" || exit 1
+check_dir_perm "${SCRATCH_FAST_DIR}" "scratch-slow" || exit 1
 
 #Download new data
 

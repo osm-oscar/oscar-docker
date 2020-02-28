@@ -19,7 +19,7 @@
     },
     "dbfile" :
         {   "name" : "Planet",
-            "path" : "/active/latest",
+            "path" : "/active/oscar/latest",
             "logfile": "/var/log/oscar-web/search.log",
             "limit" : 128,
             "chunklimit" : 8,

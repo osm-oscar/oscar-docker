@@ -14,7 +14,7 @@ restart_handler() {
         kill --timeout 1000 TERM --timeout 1000 KILL $OSCAR_WEB_PID
         wait $OSCAR_WEB_PID
     fi
-    
+
     umask u=rwx,g=rwx,o=
     oscar-web -c /etc/oscar-web/oscar-web-config.js &
 
@@ -41,4 +41,10 @@ do
     echo "Waiting for oscar-web with pid=$OSCAR_WEB_PID"
     wait $OSCAR_WEB_PID
     sleep 1
+    ps -p $OSCAR_WEB_PID > /dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo "oscar-web seems to have died. Exiting container"
+        RUNNING=false
+    fi
 done
