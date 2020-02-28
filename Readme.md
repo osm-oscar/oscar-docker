@@ -23,3 +23,8 @@
  * /next: temporary folder where the next search files are created (can be slower fs)
  * /active: currently active search files (should be on a ssd)
  * /archive: historic search files (can be on slower)
+
+ # Resource usage
+In order to compute files for planet the following is necessary:
+ * 256 GiB RAM
+ * 6 TiB /scratch/slow
