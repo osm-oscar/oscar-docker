@@ -24,8 +24,8 @@ RUN cd /usr/src/ \
 	&& cd /usr/src/oscar/build \
 	&& cmake -DCMAKE_BUILD_TYPE=ultra ../ \
 	&& cd /usr/src/oscar/build \
-	&& make -j $(nproc) \
-	&& cp oscar-create/oscar-create /usr/local/bin/ \
+	&& make -j $(nproc) oscar-create \
+	&& cp /usr/src/oscar/build/oscar-create/oscar-create /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-create \
 	&& rm -r /usr/src/oscar
 
