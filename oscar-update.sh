@@ -49,7 +49,7 @@ check_dir_perm "${SCRATCH_FAST_DIR}" "scratch-slow" || exit 1
 #Download new data
 
 if [ -d "${SOURCE_DIR}/next" ]; then
-    rm "${SOURCE_DIR}/next/*"
+    rm "${SOURCE_DIR}/next/*" > /dev/null 2>&1
     rmdir "${SOURCE_DIR}/next" || exit 1
 fi
 
@@ -99,15 +99,39 @@ oscar-create -c ${CONFIG_DIR}/oscar-docker.json -i ${SOURCE_DIR}/data.osm.pbf -o
 
 if [ $? -eq 0 ]; then
     if [ "${CLEAN_ARCHIVE}" = "enabled" ]; then
-        rm -r ${ARCHIVE_DIR}/*
+        rm -r ${ARCHIVE_DIR}/* > /dev/null 2>&1
     fi
     if [ "${ARCHIVE}" = "enabled" ]; then
-        mv ${ACTIVE_DIR}/* "${ARCHIVE_DIR}/"
+        for i in $(ls -1 "${ACTIVE_DIR}"); do
+            if [ -d "${ACTIVE_DIR}/${i}" ] && [ ! -h "${ACTIVE_DIR}/${i}" ]; then
+                tar -c -j -f "${ARCHIVE_DIR}/${i}.tar.bz2" "${ACTIVE_DIR}/${i}"
+                sha1sum "${ARCHIVE_DIR}/${i}.tar.bz2" > "${ARCHIVE_DIR}/${i}.tar.bz2.sha1"
+            fi
+        done
     fi
+    
+    rm -r ${ACTIVE_DIR}/* > /dev/null 2>&1
+
 	mv "${NEXT_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}"
 	chmod -R o=rX "${ACTIVE_DIR}/${CREATION_DATE}"
 	rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
 	ln -s "${ACTIVE_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}/latest"
+
+    #Restart oscar-web if it is running
+    if [ -f "/run/oscar-web/daemon.pid" ]; then
+        ps -p $(cat /run/oscar-web/daemon.pid) > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            echo "Restarting oscar-web"
+            kill -s SIGUSR1 $(cat /run/oscar-web/daemon.pid)
+        else
+            echo "oscar-web is not running."
+        fi
+    fi
+
+    echo "Computing checksums"
+    for i in $(ls -1 ${ACTIVE_DIR}/latest/); do
+        sha1sum "${ACTIVE_DIR}/latest/${i}" > "${ACTIVE_DIR}/latest/${i}.sha1"
+    done
 
 	echo "Finished update at $(date)"
     exit 0

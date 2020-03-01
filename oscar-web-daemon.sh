@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "$$" > /run/oscar-web/daemon.pid
+
 OSCAR_WEB_PID=
 RUNNING=false
 
@@ -11,7 +13,7 @@ stop_handler() {
 restart_handler() {
     if [ -n "$OSCAR_WEB_PID" ]; then
         echo "Stopping oscar-web with pid=$OSCAR_WEB_PID"
-        kill --timeout 1000 TERM --timeout 1000 KILL $OSCAR_WEB_PID
+        kill -s KILL $OSCAR_WEB_PID > /dev/null 2>&1
         wait $OSCAR_WEB_PID
     fi
 

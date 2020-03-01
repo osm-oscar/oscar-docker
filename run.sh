@@ -7,6 +7,12 @@ if [ "$#" -ne 1 ]; then
     echo "usage: See readme"
 fi
 
+#Make env vars permanent
+echo "SOURCE_REMOTE_URL=${SOURCE_REMOTE_URL}" > /etc/oscar-options.sh
+echo "UPDATES=${UPDATES}" >> /etc/oscar-options.sh
+echo "ARCHIVE=${ARCHIVE}" >> /etc/oscar-options.sh
+echo "CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
+
 source /etc/oscar-env.sh
 
 function setup_dir() {
@@ -28,17 +34,17 @@ setup_dir "${SCRATCH_FAST_DIR}" || exit 1
 
 
 # Clean temp
-rm -rf /tmp/*
-rm -rf ${SCRATCH_SLOW_DIR}/*
-rm -rf ${SCRATCH_FAST_DIR}/*
+rm -rf /tmp/* > /dev/null 2>&1
+rm -rf ${SCRATCH_SLOW_DIR}/* > /dev/null 2>&1
+rm -rf ${SCRATCH_FAST_DIR}/* > /dev/null 2>&1
 
 if [ "$1" = "clean" ]; then
     echo "Removing source data and latest oscar-web data"
-    rm "${SOURCE_DIR}/data.osm.pbf"
-    rm "${SOURCE_DIR}/data.osm.pbf.md5"
+    rm "${SOURCE_DIR}/data.osm.pbf" > /dev/null 2>&1
+    rm "${SOURCE_DIR}/data.osm.pbf.md5" > /dev/null 2>&1
     if [ -e "${ACTIVE_DIR}/latest" ]; then
-        rm -r $(readlink -f ${ACTIVE_DIR}/latest)
-        rm "${ACTIVE_DIR}/latest"
+        rm -r $(readlink -f ${ACTIVE_DIR}/latest) > /dev/null 2>&1
+        rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
     fi
     exit 0
 fi
