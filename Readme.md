@@ -7,7 +7,8 @@
  * UPDATES=enabled|disabled: check for new updates every day
  * ARCHIVE=enabled|disabled: archive old data
  * CLEAN_ARCHIVE=enabled|disabled: clean archive
- * SOURCE_REMOTE_URL: url to the data file
+ * OSM_SOURCE_REMOTE_URL: url to the data.osm.pbf file
+ * OSCAR_SOURCE_REMOTE_URL: url to the data.tar.bz2 file containing oscar search data
 
 # Configuration
 ## oscar-create

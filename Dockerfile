@@ -8,7 +8,7 @@ RUN apt-get update \
 		cmake build-essential ragel \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
-		lighttpd cron git-core wget python ca-certificates sudo \
+		lighttpd cron git-core curl python ca-certificates sudo \
 	&& apt-get clean autoclean \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -87,15 +87,15 @@ COPY oscar-data-config.json /etc/oscar-create/oscar-create/
 #Setup oscar-web config
 COPY oscar-web-config.js /etc/oscar-web/
 
+#Setup oscar-web-daemon script
+COPY oscar-web-daemon.sh /usr/local/bin/oscar-web-daemon
+RUN chmod +x /usr/local/bin/oscar-web-daemon
+
 #Setup update skript
 COPY oscar-update.sh /usr/local/bin/oscar-update
 RUN chmod +x /usr/local/bin/oscar-update \
 	&& echo "#!/bin/bash\nsudo -u oscar -g oscar /usr/local/bin/oscar-update" > /etc/cron.daily/oscar-update.sh \
 	&& chmod +x /etc/cron.daily/oscar-update.sh
-
-#Setup oscar-web-daemon script
-COPY oscar-web-daemon.sh /usr/local/bin/oscar-web-daemon
-RUN chmod +x /usr/local/bin/oscar-web-daemon
 
 # Start running
 COPY run.sh /
