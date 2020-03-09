@@ -80,13 +80,6 @@ RUN mkdir "/source" \
 #Setup oscar-env
 COPY oscar-env.sh /etc/oscar-env.sh
 
-#Setup oscar-create config
-COPY oscar-machine-config.json /etc/oscar-create/oscar-create/oscar-docker.json
-COPY oscar-data-config.json /etc/oscar-create/oscar-create/
-
-#Setup oscar-web config
-COPY oscar-web-config.js /etc/oscar-web/
-
 #Setup oscar-web-daemon script
 COPY oscar-web-daemon.sh /usr/local/bin/oscar-web-daemon
 RUN chmod +x /usr/local/bin/oscar-web-daemon
@@ -96,6 +89,14 @@ COPY oscar-update.sh /usr/local/bin/oscar-update
 RUN chmod +x /usr/local/bin/oscar-update \
 	&& echo "#!/bin/bash\nsudo -u oscar -g oscar /usr/local/bin/oscar-update" > /etc/cron.daily/oscar-update.sh \
 	&& chmod +x /etc/cron.daily/oscar-update.sh
+
+#Setup oscar-create config
+COPY oscar-create-entry.json
+COPY oscar-machine-config.json /etc/oscar-create/oscar-create/oscar-docker.json
+COPY oscar-data-config.json /etc/oscar-create/oscar-create/
+
+#Setup oscar-web config
+COPY oscar-web-config.js /etc/oscar-web/
 
 # Start running
 COPY run.sh /

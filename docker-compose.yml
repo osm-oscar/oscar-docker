@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  oscar-web:
+    build: ./
+    image: oscar-web
+    volumes:
+    - oscar-source:/source
+    - oscar-scratch-fast:/scratch/fast
+    - oscar-scratch-slow:/scratch/slow
+    - oscar-next:/next
+    - oscar-active:/active
+    - oscar-archive:/archive
+    ports:
+    - "14080:80"
+    command: ["run.sh", "serve"]
+
+volumes:
+  oscar-source:
+  oscar-scratch-fast:
+  oscar-scratch-slow:
+  oscar-next:
+  oscar-active:
+  oscar-archive:
