@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.6'
 
 #To create an initial file: docker-compose run oscar-web create
 #To clean all dirs: docker-compose run oscar-web clean
