@@ -6,7 +6,7 @@ version: '3.6'
 services:
   oscar-web:
     build: ./src/
-    image: dbahrdt/oscar-web
+    image: dbahrdt/oscar-web:latest
     volumes:
     - oscar-source:/source
     - oscar-scratch-fast:/scratch/fast
