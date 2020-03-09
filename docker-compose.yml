@@ -2,7 +2,7 @@ version: '3'
 
 services:
   oscar-web:
-    build: ./
+    build: ./src/
     image: oscar-web
     volumes:
     - oscar-source:/source
@@ -11,14 +11,37 @@ services:
     - oscar-next:/next
     - oscar-active:/active
     - oscar-archive:/archive
+    configs:
+      - source: oscar-create-cfg
+        target: /etc/oscar-create/user-settings.json
+        uid: '0'
+        gid: '0'
+        mode: 0444
+      - source: oscar-web-cfg
+        target: /etc/oscar-web/config.js
+        uid: '0'
+        gid: '0'
+        mode: 0444
+    environment:
+      - UPDATES=enabled
+      - ARCHIVE=enabled
+      - CLEAN_ARCHIVE=enabled
+      - OSM_SOURCE_REMOTE_URL=http://download.geofabrik.de/europe/andorra-latest.osm.pbf
+      # - OSCAR_SOURCE_REMOTE_URL=file:///archive/oscar/20200306.tar.bz2
     ports:
     - "14080:80"
     command: ["run.sh", "serve"]
 
+configs:
+  oscar-create-cfg:
+    file: ./cfg/oscar-create-user-settings.json
+  oscar-web-cfg:
+    file: ./cfg/oscar-web-config.js
+
 volumes:
-  oscar-source:
-  oscar-scratch-fast:
-  oscar-scratch-slow:
-  oscar-next:
-  oscar-active:
-  oscar-archive:
+  oscar-source: {}
+  oscar-scratch-fast: {}
+  oscar-scratch-slow: {}
+  oscar-next: {}
+  oscar-active: {}
+  oscar-archive: {}
