@@ -1,0 +1,7 @@
+{
+	"include":"user-settings.json",
+    "tempdir" : {
+        "fast" : "/scratch/fast/oscar/osmc",
+        "slow" : "/scratch/slow/oscar/osmc"
+    }
+}

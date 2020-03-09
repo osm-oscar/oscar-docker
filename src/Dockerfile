@@ -19,7 +19,10 @@ RUN cd /usr/src/ \
 	&& git -C /usr/src/oscar checkout ee304d09ef32a70e6fb825f352d4bb847391e153 \
 	&& git -C /usr/src/oscar submodule update --init --recursive \
 	&& mkdir /etc/oscar-create \
-	&& cp -a  /usr/src/oscar/data/configs/* /etc/oscar-create/ \
+	&& cp -a  /usr/src/oscar/data/configs/oscar-create/*.json /etc/oscar-create/ \
+	&& mkdir /etc/oscar-create/lists \
+	&& cp -a /usr/src/oscar/data/configs/oscar-create/allkeys.txt /etc/oscar-create/lists/ \
+	&& cp -a  /usr/src/oscar/data/configs/srclists/* /etc/oscar-create/lists/ \
 	&& mkdir /usr/src/oscar/build \
 	&& cd /usr/src/oscar/build \
 	&& cmake -DCMAKE_BUILD_TYPE=ultra ../ \
@@ -73,6 +76,8 @@ RUN mkdir /var/log/oscar-web && chmod o+rwx /var/log/oscar-web
 #Setup directories
 RUN mkdir "/source" \
 	&& mkdir "/scratch" \
+	&& mkdir "/scratch/fast" \
+	&& mkdir "/scratch/slow" \
 	&& mkdir "/next" \
 	&& mkdir "/active" \
 	&& mkdir "/archive"
@@ -90,13 +95,12 @@ RUN chmod +x /usr/local/bin/oscar-update \
 	&& echo "#!/bin/bash\nsudo -u oscar -g oscar /usr/local/bin/oscar-update" > /etc/cron.daily/oscar-update.sh \
 	&& chmod +x /etc/cron.daily/oscar-update.sh
 
-#Setup oscar-create config
-COPY oscar-create-entry.json
-COPY oscar-machine-config.json /etc/oscar-create/oscar-create/oscar-docker.json
-COPY oscar-data-config.json /etc/oscar-create/oscar-create/
+#Setup default oscar-create config
+COPY oscar-create-settings.json /etc/oscar-create/oscar-create/settings.json
+COPY oscar-create-user-settings.json /etc/oscar-create/oscar-create/user-settings.json
 
-#Setup oscar-web config
-COPY oscar-web-config.js /etc/oscar-web/
+#Setup default oscar-web config
+COPY oscar-web-config.js /etc/oscar-web/config.js
 
 # Start running
 COPY run.sh /

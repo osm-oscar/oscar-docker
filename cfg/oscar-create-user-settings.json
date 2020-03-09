@@ -1,5 +1,15 @@
 {
-	"include": "oscar-data-config.json",
+	"include": [
+		"common.json",
+		"store_all.json",
+		"store_cellsplit1k.json",
+		"store_grid3000.json",
+		"store_grt1000.json",
+		"store_notriangrefine.json",
+		"oomgeocell.json",
+		"index_rlede.json",
+		"oomgeocell_substring.json"
+	],
 	"store" : {
 		"threadCount" : 4,
 		"blobFetchCount" : 5,

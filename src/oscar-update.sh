@@ -5,7 +5,7 @@ BASE_PATH=${SCRIPTPATH}
 
 source /etc/oscar-env.sh
 
-CONFIG_DIR="/etc/oscar-create/oscar-create"
+CONFIG_DIR="/etc/oscar-create/"
 
 CREATION_DATE=$(date +%Y%m%d)
 
@@ -112,13 +112,13 @@ else
 
     echo "Computing new oscar files"
 
-    oscar-create -c ${CONFIG_DIR}/oscar-docker.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || exit 1
+    oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || exit 1
 fi
 
 #New data files should now be in ${NEXT_DIR}/${CREATION_DATE}
 
 if [ "${CLEAN_ARCHIVE}" = "enabled" ]; then
-    echo "Claening archive"
+    echo "Cleaning archive"
     rm -r ${ARCHIVE_DIR}/* > /dev/null 2>&1
 fi
 

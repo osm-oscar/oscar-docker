@@ -18,7 +18,7 @@ restart_handler() {
     fi
 
     umask u=rwx,g=rwx,o=
-    oscar-web -c /etc/oscar-web/oscar-web-config.js &
+    oscar-web -c /etc/oscar-web/config.js &
 
     OSCAR_WEB_PID=$!
 
