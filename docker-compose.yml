@@ -1,9 +1,12 @@
-version: '3'
+version: '3.7'
+
+#To create an initial file: docker-compose run oscar-web create
+#To clean all dirs: docker-compose run oscar-web clean
 
 services:
   oscar-web:
     build: ./src/
-    image: oscar-web
+    image: dbahrdt/oscar-web
     volumes:
     - oscar-source:/source
     - oscar-scratch-fast:/scratch/fast
@@ -11,6 +14,9 @@ services:
     - oscar-next:/next
     - oscar-active:/active
     - oscar-archive:/archive
+    #Configs are not supported in local mode
+    - ${PWD}/cfg/oscar-create-user-settings.json:/etc/oscar-create/user-settings.json
+    - ${PWD}/cfg/oscar-web-config.js:/etc/oscar-web/config.js
     configs:
       - source: oscar-create-cfg
         target: /etc/oscar-create/user-settings.json

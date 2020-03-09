@@ -91,5 +91,10 @@ if [ "$1" = "serve" ]; then
     exit 0
 fi
 
+if [ "$1" = "bash" ]; then
+    /bin/bash -i
+    exit $?
+fi
+
 echo "invalid command"
 exit 1
