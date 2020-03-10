@@ -36,7 +36,7 @@ services:
       # - OSCAR_SOURCE_REMOTE_URL=file:///archive/oscar/20200306.tar.bz2
     ports:
     - "14080:80"
-    command: ["run.sh", "serve"]
+    command: ["serve"]
 
 configs:
   oscar-create-cfg:
