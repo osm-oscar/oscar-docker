@@ -154,6 +154,9 @@ if [ "${ARCHIVE}" = "enabled" ]; then
             tar -c -j -f "${ARCHIVE_DIR}/${i}.tar.bz2" -C "${ACTIVE_DIR}" "${i}"
             echo "Creating checksum"
             md5sum "${ARCHIVE_DIR}/${i}.tar.bz2" > "${ARCHIVE_DIR}/${i}.tar.bz2.md5"
+            rm ${ARCHIVE_DIR}/latest.tar.bz2 ${ARCHIVE_DIR}/latest.tar.bz2.md5sum > /dev/null 2>&1
+            ln -s ${ARCHIVE_DIR}/${i}.tar.bz2 ${ARCHIVE_DIR}/latest.tar.bz2
+            ln -s ${ARCHIVE_DIR}/${i}.tar.bz2.md5 ${ARCHIVE_DIR}/latest.tar.bz2.md5sum
         fi
     done
 fi
