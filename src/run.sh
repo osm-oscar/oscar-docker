@@ -8,8 +8,9 @@ if [ "$#" -ne 1 ]; then
 fi
 
 #Make env vars permanent
-echo "OSM_SOURCE_REMOTE_URL=${OSM_SOURCE_REMOTE_URL}" > /etc/oscar-options.sh
-echo "OSCAR_SOURCE_REMOTE_URL=${OSCAR_SOURCE_REMOTE_URL}" > /etc/oscar-options.sh
+echo "#Global OSCAR options" > /etc/oscar-options.sh
+echo "OSM_SOURCE_REMOTE_URL=${OSM_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
+echo "OSCAR_SOURCE_REMOTE_URL=${OSCAR_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
 echo "UPDATES=${UPDATES}" >> /etc/oscar-options.sh
 echo "ARCHIVE=${ARCHIVE}" >> /etc/oscar-options.sh
 echo "CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
