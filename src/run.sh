@@ -54,7 +54,7 @@ if [ "$1" = "clean" ]; then
 fi
 
 if [ "$1" = "create" ]; then
-    /usr/local/bin/oscar-update
+    sudo -u oscar -g oscar sh -c 'OSCAR_UPDATE_FORCE=true /usr/local/bin/oscar-update'
     exit 0
 fi
 

@@ -53,7 +53,11 @@ function download_data() {
     else
         rm "${SOURCE_DIR}/next/${DATA_FILE_NAME}.md5" || exit 1
         echo "No new data file found."
-        exit 0
+        if [ $OSCAR_UPDATE_FORCE ]; then
+            echo "Forcing creation using old files!"
+        else
+            exit 0
+        fi
     fi
 }
 
