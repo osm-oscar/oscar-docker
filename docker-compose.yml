@@ -2,6 +2,7 @@ version: '3.6'
 
 #To create an initial file: docker-compose run oscar-web create
 #To clean all dirs: docker-compose run oscar-web clean
+#shm_size needs to be set to an appropriate value and depends on the data set
 
 services:
   oscar-web:
@@ -37,6 +38,7 @@ services:
       # - OSCAR_SOURCE_REMOTE_URL=file:///archive/oscar/20200306.tar.bz2
     ports:
     - "14080:80"
+    shm_size: 4G
     command: ["serve"]
 
 configs:
