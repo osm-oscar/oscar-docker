@@ -14,6 +14,7 @@ services:
     - oscar-next:/next
     - oscar-active:/active
     - oscar-archive:/archive
+    - oscar-log:/var/log/oscar-web
     #Configs are not supported in local mode
     - ${PWD}/cfg/oscar-create-user-settings.json:/etc/oscar-create/user-settings.json
     - ${PWD}/cfg/oscar-web-config.js:/etc/oscar-web/config.js
@@ -51,3 +52,4 @@ volumes:
   oscar-next: {}
   oscar-active: {}
   oscar-archive: {}
+  oscar-log: {}

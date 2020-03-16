@@ -33,6 +33,8 @@ setup_dir "${ACTIVE_DIR}" || exit 1
 setup_dir "${ARCHIVE_DIR}" || exit 1
 setup_dir "${SCRATCH_SLOW_DIR}" || exit 1
 setup_dir "${SCRATCH_FAST_DIR}" || exit 1
+setup_dir "${OSCAR_LOG_DIR}" || exit 1
+setup_dir "${OSCAR_UPDATE_LOG_DIR}" || exit 1
 
 
 # Clean temp

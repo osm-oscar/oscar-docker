@@ -70,9 +70,6 @@ RUN ln -s /etc/lighttpd/conf-available/10-fastcgi.conf /etc/lighttpd/conf-enable
 RUN useradd -U oscar \
 	&& usermod -a -G oscar www-data
 
-#Setup logging
-RUN mkdir /var/log/oscar-web && chmod o+rwx /var/log/oscar-web
-
 #Setup directories
 RUN mkdir "/source" \
 	&& mkdir "/scratch" \
@@ -92,7 +89,7 @@ RUN chmod +x /usr/local/bin/oscar-web-daemon
 #Setup update skript
 COPY oscar-update.sh /usr/local/bin/oscar-update
 RUN chmod +x /usr/local/bin/oscar-update \
-	&& echo "#!/bin/bash\nsudo -u oscar -g oscar /usr/local/bin/oscar-update" > /etc/cron.daily/oscar-update.sh \
+	&& echo "#!/bin/bash\nsudo -u oscar -g oscar sh -c '/usr/local/bin/oscar-update >> /var/log/oscar-web/update/$(date +%Y%m%d) 2>&1'" > /etc/cron.daily/oscar-update.sh \
 	&& chmod +x /etc/cron.daily/oscar-update.sh
 
 #Setup default oscar-create config
