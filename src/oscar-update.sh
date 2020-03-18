@@ -159,6 +159,7 @@ if [ "${ARCHIVE}" = "enabled" ]; then
             echo "Creating checksum"
             md5sum "${ARCHIVE_DIR}/${i}.tar.bz2" > "${ARCHIVE_DIR}/${i}.tar.bz2.md5"
             rm ${ARCHIVE_DIR}/latest.tar.bz2 ${ARCHIVE_DIR}/latest.tar.bz2.md5sum > /dev/null 2>&1
+            chmod o+rx ${ARCHIVE_DIR}/${i}.tar.bz2 ${ARCHIVE_DIR}/${i}.tar.bz2.md5
             ln -s ${ARCHIVE_DIR}/${i}.tar.bz2 ${ARCHIVE_DIR}/latest.tar.bz2
             ln -s ${ARCHIVE_DIR}/${i}.tar.bz2.md5 ${ARCHIVE_DIR}/latest.tar.bz2.md5sum
         fi
