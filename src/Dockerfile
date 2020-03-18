@@ -40,6 +40,7 @@ RUN cd /usr/src/ \
 	&& make -j $(nproc) oscar-create \
 	&& cp /usr/src/oscar/build/oscar-create/oscar-create /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-create \
+	&& strip /usr/local/bin/oscar-create \
 	&& rm -r /usr/src/oscar
 
 #Install oscar-web
@@ -55,6 +56,8 @@ RUN cd /usr/src/ \
 	&& cd /usr/src/oscar-web/build \
 	&& make -j $(nproc) \
 	&& cp oscar-web /usr/local/bin/ \
+	&& chmod +x /usr/local/bin/oscar-web \
+	&& strip /usr/local/bin/oscar-web \
 	&& rm -r /usr/src/oscar-web
 
 RUN ldconfig
