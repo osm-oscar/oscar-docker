@@ -26,7 +26,7 @@ RUN cd /usr/src \
 #Install Oscar-create
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar.git oscar \
-	&& git -C /usr/src/oscar checkout ee304d09ef32a70e6fb825f352d4bb847391e153 \
+	&& git -C /usr/src/oscar checkout e92a05be5b824803e8bbbf1152065d6498d8938c \
 	&& git -C /usr/src/oscar submodule update --init --recursive \
 	&& mkdir /etc/oscar-create \
 	&& cp -a /usr/src/oscar/data/configs/oscar-create/*.json /etc/oscar-create/ \
@@ -46,7 +46,7 @@ RUN cd /usr/src/ \
 #Install oscar-web
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web \
-	&& git -C /usr/src/oscar-web checkout 146fdeb438f5f3455bf79e3b718ad4af72bf0e8d \
+	&& git -C /usr/src/oscar-web checkout faf2dd6e1ec1f58c33d66ad6ef5e8174b3115f8f \
 	&& git -C /usr/src/oscar-web submodule update --init --recursive \
 	&& mkdir /etc/oscar-web \
 	&& cp -a /usr/src/oscar-web/website /var/www/oscar \
