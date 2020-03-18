@@ -13,6 +13,16 @@ RUN apt-get update \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+#Install CPPCms
+RUN cd /usr/src \
+	&& git clone https://github.com/artyom-beilis/cppcms.git cppcms \
+	&& mkdir /usr/src/cppcms/build \
+	&& cd /usr/src/cppcms/build \
+	&& cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../ \
+	&& make -j $(nproc) \
+	&& make install \
+	&& rm -r /usr/src/cppcms
+
 #Install Oscar-create
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar.git oscar \
@@ -31,15 +41,6 @@ RUN cd /usr/src/ \
 	&& cp /usr/src/oscar/build/oscar-create/oscar-create /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-create \
 	&& rm -r /usr/src/oscar
-
-#Install CPPCms
-RUN cd /usr/src \
-	&& git clone https://github.com/artyom-beilis/cppcms.git cppcms \
-	&& mkdir /usr/src/cppcms/build \
-	&& cd /usr/src/cppcms/build \
-	&& cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../ \
-	&& make -j $(nproc) \
-	&& make install
 
 #Install oscar-web
 RUN cd /usr/src/ \
