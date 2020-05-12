@@ -1,7 +1,7 @@
 # Running
- * docker run create: downloads a new data set and creates the necessary search files
- * docker run serve: runs oscar-web
- * docker run clean: clean source/active directory of files
+ * docker-compose -f docker-compose.yml -f oscar-create.yml up: downloads a new data set and creates the necessary search files
+ * docker-compose -f docker-compose.yml up: runs oscar-web
+ * docker-compose -f docker-compose.yml -f oscar-clean.yml up: clean source/active directory of files
 
 # Environment variables:
  * UPDATES=enabled|disabled: check for new updates every day
