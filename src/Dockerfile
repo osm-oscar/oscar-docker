@@ -26,7 +26,7 @@ RUN cd /usr/src \
 #Install Oscar-create
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar.git oscar \
-	&& git -C /usr/src/oscar checkout e92a05be5b824803e8bbbf1152065d6498d8938c \
+	&& git -C /usr/src/oscar checkout ad1f54e5fc678edf0d41754a210938a952e838b4 \
 	&& git -C /usr/src/oscar submodule update --init --recursive \
 	&& mkdir /etc/oscar-create \
 	&& cp -a /usr/src/oscar/data/configs/oscar-create/*.json /etc/oscar-create/ \
