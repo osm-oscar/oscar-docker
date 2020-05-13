@@ -26,15 +26,21 @@ function setup_dir() {
     return 0
 }
 
+function setup_dir_worldreadable() {
+    setup_dir $@ || return 1
+    chmod -R u=rwX,g=rX,o=rX "${1}" || return 1
+    return 0
+}
+
 setup_dir "${SOURCE_DIR}" || exit 1
 setup_dir "${NEXT_DIR}" || exit 1
 setup_dir "${SOURCE_DIR}" || exit 1
 setup_dir "${ACTIVE_DIR}" || exit 1
-setup_dir "${ARCHIVE_DIR}" || exit 1
 setup_dir "${SCRATCH_SLOW_DIR}" || exit 1
 setup_dir "${SCRATCH_FAST_DIR}" || exit 1
 setup_dir "${OSCAR_LOG_DIR}" || exit 1
 setup_dir "${OSCAR_UPDATE_LOG_DIR}" || exit 1
+setup_dir_worldreadable "${ARCHIVE_DIR}" || exit 1
 
 
 # Clean temp
