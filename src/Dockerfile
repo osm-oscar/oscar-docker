@@ -92,9 +92,10 @@ RUN chmod +x /usr/local/bin/oscar-web-daemon
 
 #Setup update skript
 COPY oscar-update.sh /usr/local/bin/oscar-update
+COPY oscar-cron.sh /usr/local/bin/oscar-cron
 RUN chmod +x /usr/local/bin/oscar-update \
-	&& echo "#!/bin/bash\nsudo -u oscar -g oscar sh -c '/usr/local/bin/oscar-update >> /var/log/oscar-web/update/$(date +%Y%m%d) 2>&1'" > /etc/cron.daily/oscar-update.sh \
-	&& chmod +x /etc/cron.daily/oscar-update.sh
+	&& chmod +x /usr/local/bin/oscar-cron \
+	&& echo "0  1    * * *   oscar    /usr/local/bin/oscar-cron\n" >> /etc/crontab
 
 #Setup default oscar-create config
 COPY oscar-create-settings.json /etc/oscar-create/settings.json
