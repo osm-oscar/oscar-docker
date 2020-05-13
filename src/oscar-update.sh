@@ -103,8 +103,10 @@ else
     pgrep oscar-create > /dev/null && echo "Oscar update is still in progress!" && exit 0
 
     if [ -z "${OSM_SOURCE_REMOTE_URL}" ]; then
-        echo "Source url is not set. Using default of Liechtenstein from Geofabrik"
-        SOURCE_REMOTE_URL="http://download.geofabrik.de/europe/liechtenstein-latest.osm.pbf"
+        echo "Source url is not set."
+        echo "You may set Liechtenstein as a sample remote url:"
+        echo "OSM_SOURCE_REMOTE_URL=http://download.geofabrik.de/europe/liechtenstein-latest.osm.pbf"
+        exit 1
     else
         SOURCE_REMOTE_URL="${OSM_SOURCE_REMOTE_URL}"
     fi
