@@ -39,10 +39,13 @@ RUN cd /usr/src/ \
 	&& cd /usr/src/oscar/build \
 	&& cmake -DCMAKE_BUILD_TYPE=ultra ../ \
 	&& cd /usr/src/oscar/build \
-	&& make -j $(nproc) oscar-create \
+	&& make -j $(nproc) oscar-create oscar-cmd \
 	&& cp /usr/src/oscar/build/oscar-create/oscar-create /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-create \
 	&& strip /usr/local/bin/oscar-create \
+	&& cp /usr/src/oscar/build/oscar-cmd/oscar-cmd /usr/local/bin/ \
+	&& chmod +x /usr/local/bin/oscar-cmd \
+	&& strip /usr/local/bin/oscar-cmd \
 	&& rm -r /usr/src/oscar
 
 #Install oscar-web
