@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  oscar-web:
+    ports:
+    - "14080:80"
+    shm_size: 1G
+    command: ["serve"]
+
