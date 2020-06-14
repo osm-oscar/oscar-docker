@@ -51,7 +51,7 @@ RUN cd /usr/src/ \
 #Install oscar-web
 RUN cd /usr/src/ \
 	&& git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web \
-	&& git -C /usr/src/oscar-web checkout 89df75494df4a87f37ac6de3e79e66a288d07816 \
+	&& git -C /usr/src/oscar-web checkout 0a5562a5ad7b8baf8e6a327de8036b3c8e8d459b \
 	&& git -C /usr/src/oscar-web submodule update --init --recursive \
 	&& mkdir /etc/oscar-web \
 	&& cp -a /usr/src/oscar-web/website /var/www/oscar \
