@@ -31,11 +31,11 @@ services:
         gid: '0'
         mode: 0444
     environment:
-      - UPDATES=enabled
-      - ARCHIVE=enabled
-      - CLEAN_ARCHIVE=enabled
-      - OSM_SOURCE_REMOTE_URL=http://download.geofabrik.de/europe/andorra-latest.osm.pbf
-      # - OSCAR_SOURCE_REMOTE_URL=file:///archive/oscar/20200306.tar.bz2
+      - UPDATES=${OSCAR_AUTO_UPDATE}
+      - ARCHIVE=${OSCAR_ARCHIVE_ACTIVE}
+      - CLEAN_ARCHIVE=${OSCAR_CLEAN_ARCHIVE}
+      - OSM_SOURCE_REMOTE_URL=${OSCAR_OSM_SOURCE_REMOTE_URL}
+      - OSCAR_SOURCE_REMOTE_URL=${OSCAR_DATA_SOURCE_REMOTE_URL}
     shm_size: 4G
 
 configs:
