@@ -9,13 +9,13 @@ services:
     build: ./src/
     image: dbahrdt/oscar-web:latest
     volumes:
-    - oscar-source:/source
-    - oscar-scratch-fast:/scratch/fast
-    - oscar-scratch-slow:/scratch/slow
-    - oscar-next:/next
-    - oscar-active:/active
-    - oscar-archive:/archive
-    - oscar-log:/var/log/oscar-web
+    - ${OSCAR_SOURCE}:/source
+    - ${OSCAR_SCRATCH_FAST}:/scratch/fast
+    - ${OSCAR_SCRATCH_SLOW}:/scratch/slow
+    - ${OSCAR_NEXT}:/next
+    - ${OSCAR_ACTIVE}:/active
+    - ${OSCAR_ARCHIVE}:/archive
+    - ${OSCAR_LOG}:/var/log/oscar-web
     #Configs are not supported in local mode
     - ${PWD}/cfg/oscar-create-user-settings.json:/etc/oscar-create/user-settings.json
     - ${PWD}/cfg/oscar-web-config.js:/etc/oscar-web/config.js

@@ -11,6 +11,9 @@
  * OSCAR_SOURCE_REMOTE_URL: url to the data.tar.bz2 file containing oscar search data
 
 # Configuration
+## Docker container
+ * Edit the .env file to set appropriate paths
+
 ## oscar-create
  * Configuration files may access config files from the oscar repository using a relative path of "./name.of.config.file"
 
