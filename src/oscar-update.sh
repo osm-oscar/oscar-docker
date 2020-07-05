@@ -116,8 +116,13 @@ else
     #Compute new oscar structures
 
     echo "Computing new oscar files"
-
-    oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || exit 1
+    if [ "${USE_DEBUGGER}" = "enabled" ]; then
+        echo "Starting debugger: "
+        cgdb -- -ex run --args /usr/local/bin/oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE}
+        exit 0
+    else
+        oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || exit 1
+    fi
 fi
 
 #New data files should now be in ${NEXT_DIR}/${CREATION_DATE}

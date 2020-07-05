@@ -1,0 +1,18 @@
+#use as follows:
+# docker-compose -f docker-compose.yml -f oscar-debug.yml -f oscar.create.yml run oscar-web create
+# docker-compose -f docker-compose.yml -f oscar-debug.yml -f oscar.serve.yml run oscar-web serve
+
+version: '3.6'
+
+services:
+  oscar-web:
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp=unconfined
+    environment:
+      - USE_DEBUGGER=enabled
+    stdin_open: true
+    tty: true
+
+

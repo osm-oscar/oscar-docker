@@ -42,11 +42,11 @@ RUN cd /usr/src/ \
 	&& make -j $(nproc) oscar-create oscar-cmd \
 	&& cp /usr/src/oscar/build/oscar-create/oscar-create /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-create \
-	&& strip /usr/local/bin/oscar-create \
 	&& cp /usr/src/oscar/build/oscar-cmd/oscar-cmd /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-cmd \
-	&& strip /usr/local/bin/oscar-cmd \
 	&& rm -r /usr/src/oscar
+#	&& strip /usr/local/bin/oscar-cmd \
+#	&& strip /usr/local/bin/oscar-create
 
 #Install oscar-web
 RUN cd /usr/src/ \
@@ -62,8 +62,13 @@ RUN cd /usr/src/ \
 	&& make -j $(nproc) \
 	&& cp oscar-web /usr/local/bin/ \
 	&& chmod +x /usr/local/bin/oscar-web \
-	&& strip /usr/local/bin/oscar-web \
 	&& rm -r /usr/src/oscar-web
+#	&& strip /usr/local/bin/oscar-web
+
+#Install debugger
+RUN apt-get update \
+	&& apt-get install -y cgdb \
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}/
 
 RUN ldconfig
 
@@ -76,7 +81,7 @@ RUN ln -s /etc/lighttpd/conf-available/10-fastcgi.conf /etc/lighttpd/conf-enable
 #	&& ln -s /usr/share/doc/lighttpd/config/conf.d/mime.conf /etc/lighttpd/conf-enabled/
 
 #Setup users
-RUN useradd -U oscar \
+RUN useradd -m -U oscar \
 	&& usermod -a -G oscar www-data
 
 #Setup directories

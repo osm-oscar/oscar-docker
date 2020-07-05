@@ -60,7 +60,7 @@ if [ "$1" = "clean" ]; then
 fi
 
 if [ "$1" = "create" ]; then
-    sudo -u oscar -g oscar sh -c 'OSCAR_UPDATE_FORCE=true /usr/local/bin/oscar-update'
+    sudo -u oscar -g oscar --preserve-env=USE_DEBUGGER OSCAR_UPDATE_FORCE=true /usr/local/bin/oscar-update
     exit 0
 fi
 
@@ -91,7 +91,7 @@ if [ "$1" = "serve" ]; then
     }
     trap stop_handler SIGTERM
 
-    sudo -u oscar -g oscar oscar-web-daemon &
+    sudo -u oscar -g oscar --preserve-env=USE_DEBUGGER oscar-web-daemon &
     child=$!
     wait "$child"
 

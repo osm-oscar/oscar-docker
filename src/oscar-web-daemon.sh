@@ -18,7 +18,11 @@ restart_handler() {
     fi
 
     umask u=rwx,g=rwx,o=
-    oscar-web -c /etc/oscar-web/config.js &
+    if [ "${USE_DEBUGGER}" = "enabled" ]; then
+        cgdb -- -ex run --args oscar-web -c /etc/oscar-web/config.js
+    else
+        oscar-web -c /etc/oscar-web/config.js &
+    fi
 
     OSCAR_WEB_PID=$!
 
