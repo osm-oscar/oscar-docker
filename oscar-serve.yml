@@ -5,4 +5,5 @@ services:
     ports:
     - "14080:80"
     command: ["serve"]
+    restart: unless-stopped
 
