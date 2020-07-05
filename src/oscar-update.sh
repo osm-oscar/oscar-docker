@@ -16,8 +16,7 @@ function download_data() {
     #Download new data
 
     if [ -d "${SOURCE_DIR}/next" ]; then
-        rm "${SOURCE_DIR}/next/*" > /dev/null 2>&1
-        rmdir "${SOURCE_DIR}/next" || exit 1
+        rm -r "${SOURCE_DIR}/next" || exit 1
     fi
 
     mkdir "${SOURCE_DIR}/next" || exit 1
