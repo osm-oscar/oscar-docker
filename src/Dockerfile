@@ -4,6 +4,12 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV CMAKE_GCC_VERSION_FOR_LTO=9
 
+ARG SRC_DIR="/usr/src"
+ENV SRC_DIR="${SRC_DIR}"
+
+ARG IMAGE_DIR="/image"
+ENV IMAGE_DIR="${IMAGE_DIR}"
+
 RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
@@ -23,139 +29,139 @@ RUN ldconfig
 # Note that our final Image depends on this, hence we only want a single small layer
 FROM Base AS Cppcms
 
-RUN cd /usr/src \
+RUN cd ${SRC_DIR} \
 	&& git clone https://github.com/artyom-beilis/cppcms.git cppcms \
-	&& mkdir /usr/src/cppcms/build \
-	&& cd /usr/src/cppcms/build \
+	&& mkdir ${SRC_DIR}/cppcms/build \
+	&& cd ${SRC_DIR}/cppcms/build \
 	&& cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../ \
 	&& make -j $(nproc) \
 	&& make install \
-	&& rm -r /usr/src/cppcms
+	&& rm -r ${SRC_DIR}/cppcms
 
 
 #Install Oscar-create
 FROM Base AS OscarCreate
 
-WORKDIR /usr/src
+WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
-RUN git -C /usr/src/oscar fetch \
-	&& git -C /usr/src/oscar checkout 18d293369612cdbcffb3fe5895a8fabf8cb54f30 \
-	&& git -C /usr/src/oscar submodule update --init --recursive
-WORKDIR /usr/src/oscar/build
+RUN git -C ${SRC_DIR}/oscar fetch \
+	&& git -C ${SRC_DIR}/oscar checkout 18d293369612cdbcffb3fe5895a8fabf8cb54f30 \
+	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
+WORKDIR ${SRC_DIR}/oscar/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
 RUN make -j $(nproc) oscar-create oscar-cmd
 
 ##Copy binaries
-RUN mkdir -p /image/usr/local/bin
-RUN cp /usr/src/oscar/build/oscar-create/oscar-create /image/usr/local/bin/
-RUN chmod +x /image/usr/local/bin/oscar-create
-RUN cp /usr/src/oscar/build/oscar-cmd/oscar-cmd /image/usr/local/bin/
-RUN chmod +x /image/usr/local/bin/oscar-cmd
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN cp ${SRC_DIR}/oscar/build/oscar-create/oscar-create ${IMAGE_DIR}/usr/local/bin/
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-create
+RUN cp ${SRC_DIR}/oscar/build/oscar-cmd/oscar-cmd ${IMAGE_DIR}/usr/local/bin/
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-cmd
 
 ## Copy configs
-RUN mkdir -p /image/etc/oscar-create/lists
-RUN cp -a /usr/src/oscar/data/configs/oscar-create/*.json /image/etc/oscar-create/
-RUN cp -a -L /usr/src/oscar/data/configs/oscar-create/lists/* /image/etc/oscar-create/lists/
-RUN cp -a  /usr/src/oscar/data/configs/srclists/* /image/etc/oscar-create/lists/
+RUN mkdir -p ${IMAGE_DIR}/etc/oscar-create/lists
+RUN cp -a ${SRC_DIR}/oscar/data/configs/oscar-create/*.json ${IMAGE_DIR}/etc/oscar-create/
+RUN cp -a -L ${SRC_DIR}/oscar/data/configs/oscar-create/lists/* ${IMAGE_DIR}/etc/oscar-create/lists/
+RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-create/lists/
 
 
 #Install oscar-web
 FROM Base AS OscarWeb
 
-WORKDIR /usr/src
+WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
-RUN git -C /usr/src/oscar-web fetch \
-	&& git -C /usr/src/oscar-web checkout 65f6e198548b35042d55e212da12b82f00d585f3 \
-	&& git -C /usr/src/oscar-web submodule update --init --recursive
-WORKDIR /usr/src/oscar-web/build
+RUN git -C ${SRC_DIR}/oscar-web fetch \
+	&& git -C ${SRC_DIR}/oscar-web checkout 65f6e198548b35042d55e212da12b82f00d585f3 \
+	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
+WORKDIR ${SRC_DIR}/oscar-web/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
 RUN make -j $(nproc)
-RUN mkdir -p /image/usr/local/bin
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
 
 ##Copy Binaries
-RUN cp oscar-web /image/usr/local/bin/
-RUN chmod +x /image/usr/local/bin/oscar-web
-RUN strip /image/usr/local/bin/oscar-web
+RUN cp oscar-web ${IMAGE_DIR}/usr/local/bin/
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-web
+RUN strip ${IMAGE_DIR}/usr/local/bin/oscar-web
 
 ##Copy data
-RUN mkdir -p /image/etc/oscar-web
-RUN touch /image/etc/oscar-web/.keep
-RUN cp -a /usr/src/oscar-web/website /image/var/www/oscar
+RUN mkdir -p ${IMAGE_DIR}/etc/oscar-web
+RUN touch ${IMAGE_DIR}/etc/oscar-web/.keep
+RUN cp -a ${SRC_DIR}/oscar-web/website ${IMAGE_DIR}/var/www/oscar
 
 
 #Install OsmGraphCreator
 FROM Base AS OsmGraphCreator
 
-WORKDIR /usr/src
+WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/fmi-alg/OsmGraphCreator OsmGraphCreator
-RUN git -C /usr/src/OsmGraphCreator fetch \ 
-	&& git -C /usr/src/OsmGraphCreator checkout 2610fe34fef46e73036d217529f00596c1de4a18 \
-	&& git -C /usr/src/OsmGraphCreator submodule update --init --recursive
-WORKDIR /usr/src/OsmGraphCreator/build
+RUN git -C ${SRC_DIR}/OsmGraphCreator fetch \ 
+	&& git -C ${SRC_DIR}/OsmGraphCreator checkout 2610fe34fef46e73036d217529f00596c1de4a18 \
+	&& git -C ${SRC_DIR}/OsmGraphCreator submodule update --init --recursive
+WORKDIR ${SRC_DIR}/OsmGraphCreator/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
 RUN make -j $(nproc)
 
 ##Copy binaries
-RUN mkdir -p /image/usr/local/bin
-RUN cp creator/creator /image/usr/local/bin/graph-creator 
-RUN chmod +x /image/usr/local/bin/graph-creator
-RUN strip /image/usr/local/bin/graph-creator
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN cp creator/creator ${IMAGE_DIR}/usr/local/bin/graph-creator 
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/graph-creator
+RUN strip ${IMAGE_DIR}/usr/local/bin/graph-creator
 
 ##Copy configs
-RUN mkdir /image//etc/graph-creator
-RUN cp -r /usr/src/OsmGraphCreator/data/configs /image/etc/graph-creator/
+RUN mkdir ${IMAGE_DIR}//etc/graph-creator
+RUN cp -r ${SRC_DIR}/OsmGraphCreator/data/configs ${IMAGE_DIR}/etc/graph-creator/
 
 
 #Install CHConstructor
 FROM Base AS CHConstructor
 
-RUN cd /usr/src \
+RUN cd ${SRC_DIR} \
 RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
-RUN git -C /usr/src/CHConstructor fetch \ 
-	&& git -C /usr/src/CHConstructor checkout 05eb8df84b08b2c3f66ec1117d31d44f2e536eca \
-	&& git -C /usr/src/CHConstructor submodule update --init --recursive
-WORKDIR /usr/src/CHConstructor/build
+RUN git -C ${SRC_DIR}/CHConstructor fetch \ 
+	&& git -C ${SRC_DIR}/CHConstructor checkout 05eb8df84b08b2c3f66ec1117d31d44f2e536eca \
+	&& git -C ${SRC_DIR}/CHConstructor submodule update --init --recursive
+WORKDIR ${SRC_DIR}/CHConstructor/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
 RUN make -j $(nproc)
 
 ##Copy binaries
-RUN mkdir -p /image/usr/local/bin
-RUN cp ch_constructor /image/usr/local/bin/ch-constructor
-RUN chmod +x /image/usr/local/bin/ch-constructor
-RUN strip /image/usr/local/bin/ch-constructor
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN cp ch_constructor ${IMAGE_DIR}/usr/local/bin/ch-constructor
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/ch-constructor
+RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 
 
 #Install path-finder-cli
 FROM Base AS PathFinder
 
-WORKDIR cd /usr/src \
+WORKDIR cd ${SRC_DIR} \
 RUN git clone --recursive https://github.com/somakolli/path-finder-cli.git PathFinderCli
-RUN git -C /usr/src/PathFinderCli fetch \
-	&& git -C /usr/src/PathFinderCli checkout 3049eb89404518e872faa51886b13b01a6df657e \
-	&& git -C /usr/src/PathFinderCli submodule update --remote --init --recursive
-WORKDIR /usr/src/PathFinderCli/build
+RUN git -C ${SRC_DIR}/PathFinderCli fetch \
+	&& git -C ${SRC_DIR}/PathFinderCli checkout 3049eb89404518e872faa51886b13b01a6df657e \
+	&& git -C ${SRC_DIR}/PathFinderCli submodule update --remote --init --recursive
+WORKDIR ${SRC_DIR}/PathFinderCli/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
 RUN make -j $(nproc)
 
 ##Copy binaries
-RUN mkdir -p /image/usr/local/{libexec,lib,bin}
-RUN cp vendor/path_finder/vendor/tbb/*.{so,a} /image/usr/local/lib/
-RUN cp file_creator /image/usr/local/libexec/path-finder-create
-RUN strip /image/usr/local/libexec/path-finder-create
-RUN chmod +x /image/usr/local/libexec/path-finder-create
-RUN echo -e '#!/bin/bash\nexport LD_LIBRARY_PATH="/usr/local/lib"\nexec /usr/local/libexec/path-finder-create $@' > /image/usr/local/bin/path-finder-create
-RUN chmod +x /image/usr/local/bin/path-finder-create
+RUN mkdir -p ${IMAGE_DIR}/usr/local/{libexec,lib,bin}
+RUN cp vendor/path_finder/vendor/tbb/*.{so,a} ${IMAGE_DIR}/usr/local/lib/
+RUN cp file_creator ${IMAGE_DIR}/usr/local/libexec/path-finder-create
+RUN strip ${IMAGE_DIR}/usr/local/libexec/path-finder-create
+RUN chmod +x ${IMAGE_DIR}/usr/local/libexec/path-finder-create
+RUN echo -e '#!/bin/bash\nexport LD_LIBRARY_PATH="/usr/local/lib"\nexec /usr/local/libexec/path-finder-create $@' > ${IMAGE_DIR}/usr/local/bin/path-finder-create
+RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 
 
 #Final phase
-#We simply copy all stuff from /image of the previous images and add our scripts
+#We simply copy all stuff from ${IMAGE_DIR} of the previous images and add our scripts
 
 FROM Cppcms AS Final
-COPY --from=OscarCreate /image/* /
-COPY --from=OscarWeb /image/* /
-COPY --from=OsmGraphCreator /image/* /
-COPY --from=CHConstructor /image/* /
-COPY --from=PathFinder /image/* /
+COPY --from=OscarCreate ${IMAGE_DIR}/* /
+COPY --from=OscarWeb ${IMAGE_DIR}/* /
+COPY --from=OsmGraphCreator ${IMAGE_DIR}/* /
+COPY --from=CHConstructor ${IMAGE_DIR}/* /
+COPY --from=PathFinder ${IMAGE_DIR}/* /
 
 #Setup lighttpd
 COPY 20-oscar.conf /etc/lighttpd/conf-available/
