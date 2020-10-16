@@ -12,6 +12,13 @@ CREATION_DATE=$(date +%Y%m%d)
 DATA_FILE_NAME="data.osm.pbf"
 SOURCE_REMOTE_URL=
 
+
+#Temporary files
+OUR_SCRATCH_FAST_DIR=${SCRATCH_FAST_DIR}/oscar-update/${CREATION_DATE}
+OUR_SCRATCH_SLOW_DIR=${SCRATCH_FAST_DIR}/oscar-update/${CREATION_DATE}
+GRAPH_FILE=${OUR_SCRATCH_SLOW_DIR}/data.fmitext.graph
+CH_GRAPH_FILE=${OUR_SCRATCH_SLOW_DIR}/data.fmitext.chgraph
+
 function download_data() {
     #Download new data
 
@@ -79,6 +86,21 @@ function check_dir_perm() {
     fi
 }
 
+function clean_temp() {
+    rm -r ${OUR_SCRATCH_SLOW_DIR} ${OUR_SCRATCH_FAST_DIR}
+}
+
+function clean_failed() {
+    clean_temp
+    rm -r ${NEXT_DIR}/${CREATION_DATE}
+}
+
+function die() {
+    echo ${1}
+    clean_failed
+    exit 1
+}
+
 check_dir_perm "${SOURCE_DIR}" "source" || exit 1
 check_dir_perm "${NEXT_DIR}" "next" || exit 1
 check_dir_perm "${ACTIVE_DIR}" "active" || exit 1
@@ -92,7 +114,7 @@ if [ -n "$OSCAR_SOURCE_REMOTE_URL" ]; then
     download_data
     tar -xjf ${SOURCE_DIR}/${DATA_FILE_NAME} -C "${NEXT_DIR}" || exit 1
     CREATION_DATE=$(ls -1 "${NEXT_DIR}" | sort -n | tail -n 1)
-    if [ ! -d "${NEXT_DIR}/${CREATION_DATE}" ] || [ ! -f "${NEXT_DIR}/${CREATION_DATE}/kvstore" ]; then
+    if [ ! -d "${NEXT_DIR}/${CREATION_DATE}}" ] || [ ! -f "${NEXT_DIR}/${CREATION_DATE}/kvstore" ]; then
         echo "Unpacking failed"
         rm -r ${NEXT_DIR}/*
         exit 1
@@ -121,8 +143,19 @@ else
         cgdb -- -ex run --args /usr/local/bin/oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE}
         exit 0
     else
-        oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || exit 1
+        oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || die "Failed to create oscar search files"
     fi
+
+    #Compute graph
+    graph-creator -g fmitext -t time -s -c /etc/graph-creator/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
+
+    #Compute ch graph
+    ch-constructor -i ${GRAPH_FILE} -f FMI -o ${CH_GRAPH_FILE} -g FMI_CH -t 4 || die "Failed to compute contraction hierarchy"
+
+    #Compute path-finder data
+    path-finder-create -f ${CH_GRAPH_FILE} -s ${NEXT_DIR}/${CREATION_DATE} -l 10 -o ${NEXT_DIR}/${CREATION_DATE}/routing || die "Computing path finder data failed"
+
+    clean_temp
 fi
 
 #New data files should now be in ${NEXT_DIR}/${CREATION_DATE}
