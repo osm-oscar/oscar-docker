@@ -48,10 +48,6 @@ RUN make -j ${NUM_THREADS}
 RUN make install
 RUN make DESTDIR=${IMAGE_DIR} install
 
-# Note that our final Image depends on this, hence we only want a single small layer
-FROM RunEnv AS Cppcms
-WORKDIR ${SRC_DIR}
-COPY --from=CppcmsBuild ${IMAGE_DIR}/* /
 
 #Install Oscar-create
 FROM BuildEnv AS OscarCreate
@@ -71,6 +67,8 @@ RUN cp ${SRC_DIR}/oscar/build/oscar-create/oscar-create ${IMAGE_DIR}/usr/local/b
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-create
 RUN cp ${SRC_DIR}/oscar/build/oscar-cmd/oscar-cmd ${IMAGE_DIR}/usr/local/bin/
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-cmd
+RUN strip ${IMAGE_DIR}/usr/local/bin/oscar-cmd
+RUN strip ${IMAGE_DIR}/usr/local/bin/oscar-create
 
 ## Copy configs
 RUN mkdir -p ${IMAGE_DIR}/etc/oscar-create/lists
@@ -173,7 +171,9 @@ RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 #Final phase
 #We simply copy all stuff from ${IMAGE_DIR} of the previous images and add our scripts
 
-FROM Cppcms AS Final
+FROM RunEnv AS Final
+
+COPY --from=CppcmsBuild ${IMAGE_DIR}/ /
 COPY --from=OscarCreate ${IMAGE_DIR}/ /
 COPY --from=OscarWeb ${IMAGE_DIR}/ /
 COPY --from=OsmGraphCreator ${IMAGE_DIR}/ /
