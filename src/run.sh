@@ -9,11 +9,14 @@ fi
 
 #Make env vars permanent
 echo "#Global OSCAR options" > /etc/oscar-options.sh
-echo "OSM_SOURCE_REMOTE_URL=${OSM_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
-echo "OSCAR_SOURCE_REMOTE_URL=${OSCAR_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
-echo "UPDATES=${UPDATES}" >> /etc/oscar-options.sh
-echo "ARCHIVE=${ARCHIVE}" >> /etc/oscar-options.sh
-echo "CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
+echo "export OSM_SOURCE_REMOTE_URL=${OSM_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
+echo "export OSCAR_SOURCE_REMOTE_URL=${OSCAR_SOURCE_REMOTE_URL}" >> /etc/oscar-options.sh
+echo "export UPDATES=${UPDATES}" >> /etc/oscar-options.sh
+echo "export ARCHIVE=${ARCHIVE}" >> /etc/oscar-options.sh
+echo "export CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
+echo "export CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
+echo "export CH_CONSTRUCTOR_NUM_THREADS=${CH_CONSTRUCTOR_NUM_THREADS}" >> /etc/oscar-options.sh
+echo "export PATH_FINDER_NUM_THREADS=${PATH_FINDER_NUM_THREADS}" >> /etc/oscar-options.sh
 
 source /etc/oscar-env.sh
 
