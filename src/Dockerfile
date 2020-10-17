@@ -10,37 +10,51 @@ ENV SRC_DIR="${SRC_DIR}"
 ARG IMAGE_DIR="/image"
 ENV IMAGE_DIR="${IMAGE_DIR}"
 
+ARG NUM_THREADS=4
+
+FROM Base AS RunEnv
+RUN apt-get update \
+	&& apt-get -y upgrade \
+	&& apt-get install -y --no-install-recommends \
+		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
+		protobuf-compiler libcrypto++-dev libcgal-dev \
+		lighttpd cron curl python ca-certificates sudo \
+		cgdb \
+	&& apt-get clean autoclean \
+	&& apt-get autoremove --yes \
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}
+
+
+FROM Base AS BuildEnv
 RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
 		cmake build-essential ragel \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
-		lighttpd cron git-core curl python ca-certificates sudo \
-		cgdb \
+		git-core curl python ca-certificates \
 	&& apt-get clean autoclean \
 	&& apt-get autoremove --yes \
-	&& rm -rf /var/lib/{apt,dpkg,cache,log}/
-
-RUN ldconfig
-
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}
 
 #Install Cppms
+FROM BuildEnv AS CppcmsBuild
+
+WORKDIR ${SRC_DIR}
+RUN git clone https://github.com/artyom-beilis/cppcms.git cppcms
+WORKDIR ${SRC_DIR}/cppcms/build
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../
+RUN make -j ${NUM_THREADS}
+RUN make install
+RUN make DESTDIR=${IMAGE_DIR} install
+
 # Note that our final Image depends on this, hence we only want a single small layer
-FROM Base AS Cppcms
-
-RUN cd ${SRC_DIR} \
-	&& git clone https://github.com/artyom-beilis/cppcms.git cppcms \
-	&& mkdir ${SRC_DIR}/cppcms/build \
-	&& cd ${SRC_DIR}/cppcms/build \
-	&& cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../ \
-	&& make -j $(nproc) \
-	&& make install \
-	&& rm -r ${SRC_DIR}/cppcms
-
+FROM RunEnv AS Cppcms
+WORKDIR ${SRC_DIR}
+COPY --from=CppcmsBuild ${IMAGE_DIR}/* /
 
 #Install Oscar-create
-FROM Base AS OscarCreate
+FROM BuildEnv AS OscarCreate
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
@@ -49,7 +63,7 @@ RUN git -C ${SRC_DIR}/oscar fetch \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
-RUN make -j $(nproc) oscar-create oscar-cmd
+RUN make -j ${NUM_THREADS} oscar-create oscar-cmd
 
 ##Copy binaries
 RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
@@ -66,7 +80,7 @@ RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-creat
 
 
 #Install oscar-web
-FROM Cppcms AS OscarWeb
+FROM CppcmsBuild AS OscarWeb
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
@@ -75,10 +89,10 @@ RUN git -C ${SRC_DIR}/oscar-web fetch \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
-RUN make -j $(nproc)
-RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN make -j ${NUM_THREADS}
 
 ##Copy Binaries
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
 RUN cp oscar-web ${IMAGE_DIR}/usr/local/bin/
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/oscar-web
 RUN strip ${IMAGE_DIR}/usr/local/bin/oscar-web
@@ -91,7 +105,7 @@ RUN cp -a ${SRC_DIR}/oscar-web/website ${IMAGE_DIR}/var/www/oscar
 
 
 #Install OsmGraphCreator
-FROM Base AS OsmGraphCreator
+FROM BuildEnv AS OsmGraphCreator
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/fmi-alg/OsmGraphCreator OsmGraphCreator
@@ -100,7 +114,7 @@ RUN git -C ${SRC_DIR}/OsmGraphCreator fetch \
 	&& git -C ${SRC_DIR}/OsmGraphCreator submodule update --init --recursive
 WORKDIR ${SRC_DIR}/OsmGraphCreator/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
-RUN make -j $(nproc)
+RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
 RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
@@ -114,7 +128,7 @@ RUN cp -r ${SRC_DIR}/OsmGraphCreator/data/configs ${IMAGE_DIR}/etc/graph-creator
 
 
 #Install CHConstructor
-FROM Base AS CHConstructor
+FROM BuildEnv AS CHConstructor
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
@@ -123,7 +137,7 @@ RUN git -C ${SRC_DIR}/CHConstructor fetch \
 	&& git -C ${SRC_DIR}/CHConstructor submodule update --init --recursive
 WORKDIR ${SRC_DIR}/CHConstructor/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
-RUN make -j $(nproc)
+RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
 RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
@@ -133,7 +147,7 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 
 
 #Install path-finder-cli
-FROM Base AS PathFinder
+FROM BuildEnv AS PathFinder
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/somakolli/path-finder-cli.git PathFinderCli
@@ -142,7 +156,7 @@ RUN git -C ${SRC_DIR}/PathFinderCli fetch \
 	&& git -C ${SRC_DIR}/PathFinderCli submodule update --remote --init --recursive
 WORKDIR ${SRC_DIR}/PathFinderCli/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
-RUN make -j $(nproc)
+RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
 RUN mkdir -p ${IMAGE_DIR}/usr/local/libexec \
@@ -152,7 +166,7 @@ RUN cp vendor/path_finder/vendor/tbb/*.so ${IMAGE_DIR}/usr/local/lib/
 RUN cp file_creator ${IMAGE_DIR}/usr/local/libexec/path-finder-create
 RUN strip ${IMAGE_DIR}/usr/local/libexec/path-finder-create
 RUN chmod +x ${IMAGE_DIR}/usr/local/libexec/path-finder-create
-RUN echo -e '#!/bin/bash\nexport LD_LIBRARY_PATH="/usr/local/lib"\nexec /usr/local/libexec/path-finder-create $@' > ${IMAGE_DIR}/usr/local/bin/path-finder-create
+RUN echo '#!/bin/bash\nexport LD_LIBRARY_PATH="/usr/local/lib"\nexec /usr/local/libexec/path-finder-create $@' > ${IMAGE_DIR}/usr/local/bin/path-finder-create
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 
 
@@ -160,11 +174,13 @@ RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 #We simply copy all stuff from ${IMAGE_DIR} of the previous images and add our scripts
 
 FROM Cppcms AS Final
-COPY --from=OscarCreate ${IMAGE_DIR}/* /
-COPY --from=OscarWeb ${IMAGE_DIR}/* /
-COPY --from=OsmGraphCreator ${IMAGE_DIR}/* /
-COPY --from=CHConstructor ${IMAGE_DIR}/* /
-COPY --from=PathFinder ${IMAGE_DIR}/* /
+COPY --from=OscarCreate ${IMAGE_DIR}/ /
+COPY --from=OscarWeb ${IMAGE_DIR}/ /
+COPY --from=OsmGraphCreator ${IMAGE_DIR}/ /
+COPY --from=CHConstructor ${IMAGE_DIR}/ /
+COPY --from=PathFinder ${IMAGE_DIR}/ /
+
+RUN ldconfig
 
 #Setup lighttpd
 COPY 20-oscar.conf /etc/lighttpd/conf-available/
