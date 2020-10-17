@@ -66,7 +66,7 @@ RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-creat
 
 
 #Install oscar-web
-FROM Base AS OscarWeb
+FROM Cppcms AS OscarWeb
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
@@ -86,6 +86,7 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/oscar-web
 ##Copy data
 RUN mkdir -p ${IMAGE_DIR}/etc/oscar-web
 RUN touch ${IMAGE_DIR}/etc/oscar-web/.keep
+RUN mkdir -p ${IMAGE_DIR}/var/www/
 RUN cp -a ${SRC_DIR}/oscar-web/website ${IMAGE_DIR}/var/www/oscar
 
 
@@ -108,14 +109,14 @@ RUN chmod +x ${IMAGE_DIR}/usr/local/bin/graph-creator
 RUN strip ${IMAGE_DIR}/usr/local/bin/graph-creator
 
 ##Copy configs
-RUN mkdir ${IMAGE_DIR}//etc/graph-creator
+RUN mkdir -p ${IMAGE_DIR}/etc/graph-creator
 RUN cp -r ${SRC_DIR}/OsmGraphCreator/data/configs ${IMAGE_DIR}/etc/graph-creator/
 
 
 #Install CHConstructor
 FROM Base AS CHConstructor
 
-RUN cd ${SRC_DIR} \
+WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
 RUN git -C ${SRC_DIR}/CHConstructor fetch \ 
 	&& git -C ${SRC_DIR}/CHConstructor checkout 05eb8df84b08b2c3f66ec1117d31d44f2e536eca \
@@ -134,7 +135,7 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 #Install path-finder-cli
 FROM Base AS PathFinder
 
-WORKDIR cd ${SRC_DIR} \
+WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/somakolli/path-finder-cli.git PathFinderCli
 RUN git -C ${SRC_DIR}/PathFinderCli fetch \
 	&& git -C ${SRC_DIR}/PathFinderCli checkout 3049eb89404518e872faa51886b13b01a6df657e \
@@ -144,8 +145,10 @@ RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
 RUN make -j $(nproc)
 
 ##Copy binaries
-RUN mkdir -p ${IMAGE_DIR}/usr/local/{libexec,lib,bin}
-RUN cp vendor/path_finder/vendor/tbb/*.{so,a} ${IMAGE_DIR}/usr/local/lib/
+RUN mkdir -p ${IMAGE_DIR}/usr/local/libexec \
+	&& mkdir -p ${IMAGE_DIR}/usr/local/lib \
+	&& mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN cp vendor/path_finder/vendor/tbb/*.so ${IMAGE_DIR}/usr/local/lib/
 RUN cp file_creator ${IMAGE_DIR}/usr/local/libexec/path-finder-create
 RUN strip ${IMAGE_DIR}/usr/local/libexec/path-finder-create
 RUN chmod +x ${IMAGE_DIR}/usr/local/libexec/path-finder-create
