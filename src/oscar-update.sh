@@ -151,7 +151,7 @@ else
 
     #Compute graph
     echo "Extracting graph"
-    graph-creator -g fmitext -t time -s -c /etc/graph-creator/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
+    graph-creator -g fmimaxspeedtext -t time -s -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
     #Compute ch graph
     echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
