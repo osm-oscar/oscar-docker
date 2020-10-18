@@ -146,6 +146,9 @@ else
         oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || die "Failed to create oscar search files"
     fi
 
+    mkdir -p ${OUR_SCRATCH_FAST_DIR} || die "Could not create fast scratch dir"
+    mkdir -p ${OUR_SCRATCH_SLOW_DIR} || die "Could not create slow scratch dir"
+
     #Compute graph
     graph-creator -g fmitext -t time -s -c /etc/graph-creator/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
