@@ -155,7 +155,7 @@ else
 
     #Compute ch graph
     echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
-    ch-constructor -i ${GRAPH_FILE} -f FMI -o ${CH_GRAPH_FILE} -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS:1} || die "Failed to compute contraction hierarchy"
+    ch-constructor -i ${GRAPH_FILE} -f FMI -o ${CH_GRAPH_FILE} -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
 
     #Compute path-finder data
     echo "Computing routing data using ${PATH_FINDER_NUM_THREADS} threads"
