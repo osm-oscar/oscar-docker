@@ -150,12 +150,15 @@ else
     mkdir -p ${OUR_SCRATCH_SLOW_DIR} || die "Could not create slow scratch dir"
 
     #Compute graph
+    echo "Extracting graph"
     graph-creator -g fmitext -t time -s -c /etc/graph-creator/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
     #Compute ch graph
+    echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
     ch-constructor -i ${GRAPH_FILE} -f FMI -o ${CH_GRAPH_FILE} -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS:1} || die "Failed to compute contraction hierarchy"
 
     #Compute path-finder data
+    echo "Computing routing data using ${PATH_FINDER_NUM_THREADS} threads"
     OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE} -s ${NEXT_DIR}/${CREATION_DATE} -l 10 -o ${NEXT_DIR}/${CREATION_DATE}/routing || die "Computing path finder data failed"
 
     clean_temp
