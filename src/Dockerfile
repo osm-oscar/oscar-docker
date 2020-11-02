@@ -11,12 +11,13 @@ ARG IMAGE_DIR="/image"
 ENV IMAGE_DIR="${IMAGE_DIR}"
 
 ARG NUM_THREADS=4
+ENV NUM_THREADS="${NUM_THREADS:-4}"
 
 FROM Base AS RunEnv
 RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
-		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
+		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
 		lighttpd cron curl python ca-certificates sudo \
 		cgdb \
@@ -30,7 +31,7 @@ RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
 		cmake build-essential ragel \
-		libz-dev libicu-dev libcairo-dev libprotobuf-dev \
+		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
 		git-core curl python ca-certificates \
 	&& apt-get clean autoclean \
@@ -148,23 +149,26 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 FROM BuildEnv AS PathFinder
 
 WORKDIR ${SRC_DIR}
-RUN git clone --recursive https://github.com/somakolli/path-finder-cli.git PathFinderCli
-RUN git -C ${SRC_DIR}/PathFinderCli fetch \
-	&& git -C ${SRC_DIR}/PathFinderCli checkout 3049eb89404518e872faa51886b13b01a6df657e \
-	&& git -C ${SRC_DIR}/PathFinderCli submodule update --remote --init --recursive
+RUN git clone --recursive https://github.com/dbahrdt/path-finder-cli.git PathFinderCli
+WORKDIR ${SRC_DIR}/PathFinderCli
+RUN cd vendor/path_finder \
+	&& git remote add dbahrdt https://github.com/dbahrdt/path_finder.git \
+	&& git fetch dbahrdt
+RUN git fetch \
+	&& cd vendor/path_finder \
+	&& git fetch dbahrdt \
+	&& cd ../../ \
+	&& git checkout 34125025ca9e6b7def6c9cebaa1a7bc0777f3dd2 \
+	&& git submodule update --init --recursive
+
 WORKDIR ${SRC_DIR}/PathFinderCli/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
 RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
-RUN mkdir -p ${IMAGE_DIR}/usr/local/libexec \
-	&& mkdir -p ${IMAGE_DIR}/usr/local/lib \
-	&& mkdir -p ${IMAGE_DIR}/usr/local/bin
-RUN cp vendor/path_finder/vendor/tbb/*.so ${IMAGE_DIR}/usr/local/lib/
-RUN cp file_creator ${IMAGE_DIR}/usr/local/libexec/path-finder-create
-RUN strip ${IMAGE_DIR}/usr/local/libexec/path-finder-create
-RUN chmod +x ${IMAGE_DIR}/usr/local/libexec/path-finder-create
-RUN echo '#!/bin/bash\nexport LD_LIBRARY_PATH="/usr/local/lib"\nexec /usr/local/libexec/path-finder-create $@' > ${IMAGE_DIR}/usr/local/bin/path-finder-create
+RUN mkdir -p ${IMAGE_DIR}/usr/local/bin
+RUN cp file_creator ${IMAGE_DIR}/usr/local/bin/path-finder-create
+RUN strip ${IMAGE_DIR}/usr/local/bin/path-finder-create
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 
 
