@@ -87,12 +87,12 @@ function check_dir_perm() {
 }
 
 function clean_temp() {
-    rm -r ${OUR_SCRATCH_SLOW_DIR} ${OUR_SCRATCH_FAST_DIR}
+    rm -r ${OUR_SCRATCH_SLOW_DIR} ${OUR_SCRATCH_FAST_DIR} > /dev/null 2>&1
 }
 
 function clean_failed() {
     clean_temp
-    rm -r ${NEXT_DIR}/${CREATION_DATE}
+    rm -r ${NEXT_DIR}/${CREATION_DATE} > /dev/null 2>&1
 }
 
 function die() {
@@ -150,16 +150,25 @@ else
     mkdir -p ${OUR_SCRATCH_SLOW_DIR} || die "Could not create slow scratch dir"
 
     #Compute graph
-    echo "Extracting graph"
-    graph-creator -g fmimaxspeedtext -t time -s -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE} ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
+    echo "Extracting connected components"
+    mkdir -p ${GRAPH_FILE} || die "Could not create directory for connected components"
+    graph-creator -g fmimaxspeedtext -t time -hs auto -ccs 1024 -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
     #Compute ch graph
     echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
-    ch-constructor -i ${GRAPH_FILE} -f FMI -o ${CH_GRAPH_FILE} -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
+    mkdir -p ${CH_GRAPH_FILE} || die "Could not create directory for ch graphs"
+    for i in $(ls -1 ${GRAPH_FILE}); do
+        echo "Computing contraction hierarchy for connected component $i" 
+        ch-constructor -i ${GRAPH_FILE}/$i -f FMI -o ${CH_GRAPH_FILE}/$i.ch -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
+    done
 
     #Compute path-finder data
-    echo "Computing routing data using ${PATH_FINDER_NUM_THREADS} threads"
-    OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE} -s ${NEXT_DIR}/${CREATION_DATE} -l 10 -o ${NEXT_DIR}/${CREATION_DATE}/routing || die "Computing path finder data failed"
+    echo "Computing path-finder data using ${PATH_FINDER_NUM_THREADS} threads"
+    mkdir ${NEXT_DIR}/${CREATION_DATE}/routing || die "Could not create directory for path-finder data"
+    for i in $(ls -1S ${CH_GRAPH_FILE} | tac); do
+        echo "Computing path-finder data for connected component $i"
+        OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
+    done
 
     clean_temp
 fi
@@ -172,15 +181,22 @@ if [ "${CLEAN_ARCHIVE}" = "enabled" ]; then
 fi
 
 echo "Removing old active oscar files"
-#remove currently active version
-rm -r ${ACTIVE_DIR}/* > /dev/null 2>&1
+
+pushd ${ACTIVE_DIR}
+OLD_ACTIVE_VERSIONS=$(ls -1 ./)
+popd
 
 echo "Moving new active oscar files into active directory"
 
-mv "${NEXT_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}"
+mv "${NEXT_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}" || die "Failed to move result to destination."
 chmod -R o=rX "${ACTIVE_DIR}/${CREATION_DATE}"
 rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
 ln -s "${ACTIVE_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}/latest"
+
+#remove currently active version
+pushd ${ACTIVE_DIR}
+rm -r $OLD_ACTIVE_VERSIONS > /dev/null 2>&1
+popd
 
 #Restart oscar-web if it is running
 if [ -f "/run/oscar-web/daemon.pid" ]; then

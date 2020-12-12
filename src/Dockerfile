@@ -56,7 +56,7 @@ FROM BuildEnv AS OscarCreate
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
 RUN git -C ${SRC_DIR}/oscar fetch \
-	&& git -C ${SRC_DIR}/oscar checkout 18d293369612cdbcffb3fe5895a8fabf8cb54f30 \
+	&& git -C ${SRC_DIR}/oscar checkout ed82e3d2dea9dc6d5869c40799b328127fcd0e83 \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
@@ -84,7 +84,7 @@ FROM CppcmsBuild AS OscarWeb
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
 RUN git -C ${SRC_DIR}/oscar-web fetch \
-	&& git -C ${SRC_DIR}/oscar-web checkout 65f6e198548b35042d55e212da12b82f00d585f3 \
+	&& git -C ${SRC_DIR}/oscar-web checkout 886acf68234078537fc6e99ba095b010813265a5 \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
@@ -109,7 +109,7 @@ FROM BuildEnv AS OsmGraphCreator
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/fmi-alg/OsmGraphCreator OsmGraphCreator
 RUN git -C ${SRC_DIR}/OsmGraphCreator fetch \ 
-	&& git -C ${SRC_DIR}/OsmGraphCreator checkout 2610fe34fef46e73036d217529f00596c1de4a18 \
+	&& git -C ${SRC_DIR}/OsmGraphCreator checkout 904e27b3992bf2bda87254c5af1ec88aa03de616 \
 	&& git -C ${SRC_DIR}/OsmGraphCreator submodule update --init --recursive
 WORKDIR ${SRC_DIR}/OsmGraphCreator/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
@@ -151,14 +151,9 @@ FROM BuildEnv AS PathFinder
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/path-finder-cli.git PathFinderCli
 WORKDIR ${SRC_DIR}/PathFinderCli
-RUN cd vendor/path_finder \
-	&& git remote add dbahrdt https://github.com/dbahrdt/path_finder.git \
-	&& git fetch dbahrdt
 RUN git fetch \
-	&& cd vendor/path_finder \
-	&& git fetch dbahrdt \
-	&& cd ../../ \
-	&& git checkout 34125025ca9e6b7def6c9cebaa1a7bc0777f3dd2 \
+	&& git checkout 1c484bebdab4197c43977fb784c55867fbe77dc9 \
+	&& git submodule sync \
 	&& git submodule update --init --recursive
 
 WORKDIR ${SRC_DIR}/PathFinderCli/build
