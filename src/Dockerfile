@@ -84,7 +84,7 @@ FROM CppcmsBuild AS OscarWeb
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
 RUN git -C ${SRC_DIR}/oscar-web fetch \
-	&& git -C ${SRC_DIR}/oscar-web checkout 886acf68234078537fc6e99ba095b010813265a5 \
+	&& git -C ${SRC_DIR}/oscar-web checkout 8a2df8eb2a03e5ca8bff10aa075e0b00c8844bb1 \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
