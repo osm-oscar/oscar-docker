@@ -170,6 +170,9 @@ else
         OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
     done
 
+    #Make sure that data is only loaded using mmap
+    find ${NEXT_DIR}/${CREATION_DATE}/routing -type f -name 'config.json' -exec sed -i 's/"mmap": false/"mmap": true/' {} \;
+
     clean_temp
 fi
 
