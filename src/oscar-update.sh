@@ -150,29 +150,33 @@ else
         oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || die "Failed to create oscar search files"
     fi
 
-    #Compute graph
-    echo "Extracting connected components"
-    mkdir -p ${GRAPH_FILE} || die "Could not create directory for connected components"
-    graph-creator -g fmimaxspeedtext -t time -hs auto -ccs 1024 -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
+    if [ "${ROUTING}" = "enabled" ]; then
 
-    #Compute ch graph
-    echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
-    mkdir -p ${CH_GRAPH_FILE} || die "Could not create directory for ch graphs"
-    for i in $(ls -1 ${GRAPH_FILE}); do
-        echo "Computing contraction hierarchy for connected component $i" 
-        ch-constructor -i ${GRAPH_FILE}/$i -f FMI -o ${CH_GRAPH_FILE}/$i.ch -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
-    done
+        #Compute graph
+        echo "Extracting connected components"
+        mkdir -p ${GRAPH_FILE} || die "Could not create directory for connected components"
+        graph-creator -g fmimaxspeedtext -t time -hs auto -ccs 1024 -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
-    #Compute path-finder data
-    echo "Computing path-finder data using ${PATH_FINDER_NUM_THREADS} threads"
-    mkdir ${NEXT_DIR}/${CREATION_DATE}/routing || die "Could not create directory for path-finder data"
-    for i in $(ls -1S ${CH_GRAPH_FILE} | tac); do
-        echo "Computing path-finder data for connected component $i"
-        OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
-    done
+        #Compute ch graph
+        echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
+        mkdir -p ${CH_GRAPH_FILE} || die "Could not create directory for ch graphs"
+        for i in $(ls -1 ${GRAPH_FILE}); do
+            echo "Computing contraction hierarchy for connected component $i" 
+            ch-constructor -i ${GRAPH_FILE}/$i -f FMI -o ${CH_GRAPH_FILE}/$i.ch -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
+        done
 
-    #Make sure that data is only loaded using mmap
-    find ${NEXT_DIR}/${CREATION_DATE}/routing -type f -name 'config.json' -exec sed -i 's/"mmap": false/"mmap": true/' {} \;
+        #Compute path-finder data
+        echo "Computing path-finder data using ${PATH_FINDER_NUM_THREADS} threads"
+        mkdir ${NEXT_DIR}/${CREATION_DATE}/routing || die "Could not create directory for path-finder data"
+        for i in $(ls -1S ${CH_GRAPH_FILE} | tac); do
+            echo "Computing path-finder data for connected component $i"
+            OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
+        done
+
+        #Make sure that data is only loaded using mmap
+        find ${NEXT_DIR}/${CREATION_DATE}/routing -type f -name 'config.json' -exec sed -i 's/"mmap": false/"mmap": true/' {} \;
+    
+    fi
 
     clean_temp
 fi

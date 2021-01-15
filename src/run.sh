@@ -14,7 +14,7 @@ echo "export OSCAR_SOURCE_REMOTE_URL=${OSCAR_SOURCE_REMOTE_URL}" >> /etc/oscar-o
 echo "export UPDATES=${UPDATES}" >> /etc/oscar-options.sh
 echo "export ARCHIVE=${ARCHIVE}" >> /etc/oscar-options.sh
 echo "export CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
-echo "export CLEAN_ARCHIVE=${CLEAN_ARCHIVE}" >> /etc/oscar-options.sh
+echo "export ROUTING=${ROUTING}" >> /etc/oscar-options.sh
 echo "export CH_CONSTRUCTOR_NUM_THREADS=${CH_CONSTRUCTOR_NUM_THREADS:-1}" >> /etc/oscar-options.sh
 echo "export PATH_FINDER_NUM_THREADS=${PATH_FINDER_NUM_THREADS:-1}" >> /etc/oscar-options.sh
 
