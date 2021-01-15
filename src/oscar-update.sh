@@ -132,6 +132,10 @@ else
         SOURCE_REMOTE_URL="${OSM_SOURCE_REMOTE_URL}"
     fi
 
+    #Create temporary directories first for cheap error path
+    mkdir -p ${OUR_SCRATCH_FAST_DIR} || die "Could not create fast scratch dir"
+    mkdir -p ${OUR_SCRATCH_SLOW_DIR} || die "Could not create slow scratch dir"
+
     echo "Downloading source files"
     download_data
 
@@ -145,9 +149,6 @@ else
     else
         oscar-create -c ${CONFIG_DIR}/settings.json -i ${SOURCE_DIR}/data.osm.pbf -o ${NEXT_DIR}/${CREATION_DATE} || die "Failed to create oscar search files"
     fi
-
-    mkdir -p ${OUR_SCRATCH_FAST_DIR} || die "Could not create fast scratch dir"
-    mkdir -p ${OUR_SCRATCH_SLOW_DIR} || die "Could not create slow scratch dir"
 
     #Compute graph
     echo "Extracting connected components"
