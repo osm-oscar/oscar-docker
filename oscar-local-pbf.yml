@@ -1,0 +1,9 @@
+version: '3.6'
+
+services:
+  oscar-web:
+    volumes:
+    - ${PWD}/data/src.osm.pbf:/src.osm.pbf
+    - ${PWD}/data/src.osm.pbf.md5:/src.osm.pbf.md5
+    command: ["create"]
+
