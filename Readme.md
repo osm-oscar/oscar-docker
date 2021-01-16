@@ -7,6 +7,7 @@
  * UPDATES=enabled|disabled: check for new updates every day
  * ARCHIVE=enabled|disabled: archive old data
  * CLEAN_ARCHIVE=enabled|disabled: clean archive
+ * ROUTING=enabled|disabled: Build routing data during updates
  * OSM_SOURCE_REMOTE_URL: url to the data.osm.pbf file
  * OSCAR_SOURCE_REMOTE_URL: url to the data.tar.bz2 file containing oscar search data
  * USE_DEBUGGER=enabled|disabled: Use cdgb to debug application. Use the oscar-debug.yml to start this.
