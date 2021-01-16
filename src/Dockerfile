@@ -1,8 +1,8 @@
 FROM ubuntu:20.04 AS Base
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 ENV CMAKE_GCC_VERSION_FOR_LTO=9
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG SRC_DIR="/usr/src"
 ENV SRC_DIR="${SRC_DIR}"
