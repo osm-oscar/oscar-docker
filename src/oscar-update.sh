@@ -157,22 +157,18 @@ else
         mkdir -p ${GRAPH_FILE} || die "Could not create directory for connected components"
         graph-creator -g fmimaxspeedtext -t time -hs auto -ccs 1024 -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
-        #Compute ch graph
+        #Compute ch graph and path finder data
         echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
+        echo "Computing path-finder data using ${PATH_FINDER_NUM_THREADS} threads"
         mkdir -p ${CH_GRAPH_FILE} || die "Could not create directory for ch graphs"
-        for i in $(ls -1 ${GRAPH_FILE}); do
-            echo "Computing contraction hierarchy for connected component $i" 
+        mkdir ${NEXT_DIR}/${CREATION_DATE}/routing || die "Could not create directory for path-finder data"
+        for i in $(ls -1S ${GRAPH_FILE} | tac); do
+            echo "Computing contraction hierarchy for connected component $i"
             ch-constructor -i ${GRAPH_FILE}/$i -f FMI -o ${CH_GRAPH_FILE}/$i.ch -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
             rm ${GRAPH_FILE}/$i > /dev/null 2>&1
-        done
-
-        #Compute path-finder data
-        echo "Computing path-finder data using ${PATH_FINDER_NUM_THREADS} threads"
-        mkdir ${NEXT_DIR}/${CREATION_DATE}/routing || die "Could not create directory for path-finder data"
-        for i in $(ls -1S ${CH_GRAPH_FILE} | tac); do
-            echo "Computing path-finder data for connected component $i"
-            OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
-            rm ${CH_GRAPH_FILE}/$i > /dev/null 2>&1
+            echo "Computing path finder data for connected component $i" 
+            OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i.ch -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
+            rm ${CH_GRAPH_FILE}/$i.ch > /dev/null 2>&1
         done
 
         #Make sure that data is only loaded using mmap
