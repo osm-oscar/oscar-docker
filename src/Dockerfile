@@ -13,19 +13,6 @@ ENV IMAGE_DIR="${IMAGE_DIR}"
 ARG NUM_THREADS=4
 ENV NUM_THREADS="${NUM_THREADS:-4}"
 
-FROM Base AS RunEnv
-RUN apt-get update \
-	&& apt-get -y upgrade \
-	&& apt-get install -y --no-install-recommends \
-		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
-		protobuf-compiler libcrypto++-dev libcgal-dev \
-		lighttpd cron curl python ca-certificates sudo \
-		cgdb \
-	&& apt-get clean autoclean \
-	&& apt-get autoremove --yes \
-	&& rm -rf /var/lib/{apt,dpkg,cache,log}
-
-
 FROM Base AS BuildEnv
 RUN apt-get update \
 	&& apt-get -y upgrade \
@@ -34,6 +21,18 @@ RUN apt-get update \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
 		git-core curl python ca-certificates \
+	&& apt-get clean autoclean \
+	&& apt-get autoremove --yes \
+	&& rm -rf /var/lib/{apt,dpkg,cache,log}
+
+FROM Base AS RunEnv
+RUN apt-get update \
+	&& apt-get -y upgrade \
+	&& apt-get install -y --no-install-recommends \
+		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
+		protobuf-compiler libcrypto++-dev libcgal-dev \
+		lighttpd cron curl python ca-certificates sudo \
+		cgdb \
 	&& apt-get clean autoclean \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}
