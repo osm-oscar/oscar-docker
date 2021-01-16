@@ -175,7 +175,8 @@ else
 
         #Make sure that data is only loaded using mmap
         find ${NEXT_DIR}/${CREATION_DATE}/routing -type f -name 'config.json' -exec sed -i 's/"mmap": false/"mmap": true/' {} \;
-    
+    else
+        echo "Skipping creation of routing files"
     fi
 
     clean_temp
