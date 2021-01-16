@@ -163,6 +163,7 @@ else
         for i in $(ls -1 ${GRAPH_FILE}); do
             echo "Computing contraction hierarchy for connected component $i" 
             ch-constructor -i ${GRAPH_FILE}/$i -f FMI -o ${CH_GRAPH_FILE}/$i.ch -g FMI_CH -t ${CH_CONSTRUCTOR_NUM_THREADS} || die "Failed to compute contraction hierarchy"
+            rm ${GRAPH_FILE}/$i > /dev/null 2>&1
         done
 
         #Compute path-finder data
@@ -171,6 +172,7 @@ else
         for i in $(ls -1S ${CH_GRAPH_FILE} | tac); do
             echo "Computing path-finder data for connected component $i"
             OMP_THREAD_LIMIT=${PATH_FINDER_NUM_THREADS} OMP_NUM_THREADS=${PATH_FINDER_NUM_THREADS} path-finder-create -f ${CH_GRAPH_FILE}/$i -o ${NEXT_DIR}/${CREATION_DATE}/routing/$i -l 10 -s ${NEXT_DIR}/${CREATION_DATE} -t ${PATH_FINDER_NUM_THREADS} || die "Computing path finder data failed"
+            rm ${CH_GRAPH_FILE}/$i > /dev/null 2>&1
         done
 
         #Make sure that data is only loaded using mmap
