@@ -55,7 +55,7 @@ FROM BuildEnv AS OscarCreate
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
 RUN git -C ${SRC_DIR}/oscar fetch \
-	&& git -C ${SRC_DIR}/oscar checkout ed82e3d2dea9dc6d5869c40799b328127fcd0e83 \
+	&& git -C ${SRC_DIR}/oscar checkout 6b0850cc9c16b33fb0702776e3b46397767d6184 \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
 RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
