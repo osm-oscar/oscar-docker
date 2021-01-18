@@ -197,13 +197,15 @@ echo "Moving new active oscar files into active directory"
 
 mv "${NEXT_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}" || die "Failed to move result to destination."
 chmod -R o=rX "${ACTIVE_DIR}/${CREATION_DATE}"
-rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
-ln -s "${ACTIVE_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}/latest"
 
 #remove currently active version
 pushd ${ACTIVE_DIR}
 rm -r $OLD_ACTIVE_VERSIONS > /dev/null 2>&1
 popd
+
+#Set latest to correct destination
+rm "${ACTIVE_DIR}/latest" > /dev/null 2>&1
+ln -s "${ACTIVE_DIR}/${CREATION_DATE}" "${ACTIVE_DIR}/latest"
 
 #Restart oscar-web if it is running
 if [ -f "/run/oscar-web/daemon.pid" ]; then
