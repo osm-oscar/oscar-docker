@@ -37,18 +37,6 @@ RUN apt-get update \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}
 
-#Install Cppms
-FROM BuildEnv AS CppcmsBuild
-
-WORKDIR ${SRC_DIR}
-RUN git clone https://github.com/artyom-beilis/cppcms.git cppcms
-WORKDIR ${SRC_DIR}/cppcms/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DDISABLE_SCGI=ON -DDISABLE_HTTP=ON -DDISABLE_STATIC=ON ../
-RUN make -j ${NUM_THREADS}
-RUN make install
-RUN make DESTDIR=${IMAGE_DIR} install
-
-
 #Install Oscar-create
 FROM BuildEnv AS OscarCreate
 
@@ -76,17 +64,16 @@ RUN cp -a ${SRC_DIR}/oscar/data/configs/oscar-create/*.json ${IMAGE_DIR}/etc/osc
 RUN cp -a -L ${SRC_DIR}/oscar/data/configs/oscar-create/lists/* ${IMAGE_DIR}/etc/oscar-create/lists/
 RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-create/lists/
 
-
 #Install oscar-web
-FROM CppcmsBuild AS OscarWeb
+FROM BuildEnv AS OscarWeb
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
 RUN git -C ${SRC_DIR}/oscar-web fetch \
-	&& git -C ${SRC_DIR}/oscar-web checkout 8a2df8eb2a03e5ca8bff10aa075e0b00c8844bb1 \
+	&& git -C ${SRC_DIR}/oscar-web checkout dc938622b6914cf648cb70c71b8faa2465ebb9c7 \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
-RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPTIMIZE_ULTRA=TRUE ../
 RUN make -j ${NUM_THREADS}
 
 ##Copy Binaries
@@ -165,13 +152,11 @@ RUN cp file_creator ${IMAGE_DIR}/usr/local/bin/path-finder-create
 RUN strip ${IMAGE_DIR}/usr/local/bin/path-finder-create
 RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 
-
 #Final phase
 #We simply copy all stuff from ${IMAGE_DIR} of the previous images and add our scripts
 
 FROM RunEnv AS Final
 
-COPY --from=CppcmsBuild ${IMAGE_DIR}/ /
 COPY --from=OscarCreate ${IMAGE_DIR}/ /
 COPY --from=OscarWeb ${IMAGE_DIR}/ /
 COPY --from=OsmGraphCreator ${IMAGE_DIR}/ /
