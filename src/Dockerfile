@@ -1,6 +1,4 @@
-FROM ubuntu:20.04 AS Base
-
-ENV CMAKE_GCC_VERSION_FOR_LTO=9
+FROM ubuntu:21.10 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -43,10 +41,11 @@ FROM buildenv AS oscarcreate
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
 RUN git -C ${SRC_DIR}/oscar fetch \
-	&& git -C ${SRC_DIR}/oscar checkout 6b0850cc9c16b33fb0702776e3b46397767d6184 \
+	&& git -C ${SRC_DIR}/oscar checkout 3f36fa969b9f11475b75319d2b00ac5de0b4df95 \
+	&& git -C ${SRC_DIR}/oscar submodule sync \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
-RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOSCAR_OPTIMIZE_ULTRA=ON -DSSERIALIZE_DISABLE_DTS2=ON ../
 RUN make -j ${NUM_THREADS} oscar-create oscar-cmd
 
 ##Copy binaries
@@ -70,10 +69,11 @@ FROM buildenv AS oscarweb
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
 RUN git -C ${SRC_DIR}/oscar-web fetch \
-	&& git -C ${SRC_DIR}/oscar-web checkout dc938622b6914cf648cb70c71b8faa2465ebb9c7 \
+	&& git -C ${SRC_DIR}/oscar-web checkout 1cd0a5a33c5cec467c8cea9aa657c84cf22a5d04 \
+	&& git -C ${SRC_DIR}/oscar-web submodule sync \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DOPTIMIZE_ULTRA=TRUE ../
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DOSCARWEB_OPTIMIZE_ULTRA=TRUE -DSSERIALIZE_DISABLE_DTS2=ON ../
 RUN make -j ${NUM_THREADS}
 
 ##Copy Binaries
@@ -95,7 +95,8 @@ FROM buildenv AS osmgraphcreator
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/fmi-alg/OsmGraphCreator OsmGraphCreator
 RUN git -C ${SRC_DIR}/OsmGraphCreator fetch \ 
-	&& git -C ${SRC_DIR}/OsmGraphCreator checkout 904e27b3992bf2bda87254c5af1ec88aa03de616 \
+	&& git -C ${SRC_DIR}/OsmGraphCreator checkout 54b8a61035867bc9ef86d8fcfd711ac0b7609a12 \
+	&& git -C ${SRC_DIR}/OsmGraphCreator submodule sync \
 	&& git -C ${SRC_DIR}/OsmGraphCreator submodule update --init --recursive
 WORKDIR ${SRC_DIR}/OsmGraphCreator/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
@@ -119,6 +120,7 @@ WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
 RUN git -C ${SRC_DIR}/CHConstructor fetch \ 
 	&& git -C ${SRC_DIR}/CHConstructor checkout 05eb8df84b08b2c3f66ec1117d31d44f2e536eca \
+	&& git -C ${SRC_DIR}/CHConstructor submodule sync \
 	&& git -C ${SRC_DIR}/CHConstructor submodule update --init --recursive
 WORKDIR ${SRC_DIR}/CHConstructor/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ../
@@ -138,12 +140,12 @@ WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/path-finder-cli.git PathFinderCli
 WORKDIR ${SRC_DIR}/PathFinderCli
 RUN git fetch \
-	&& git checkout 1c484bebdab4197c43977fb784c55867fbe77dc9 \
+	&& git checkout 6c9cfbae52f6cdd65c3811facdfd2a6f4af94573 \
 	&& git submodule sync \
 	&& git submodule update --init --recursive
 
 WORKDIR ${SRC_DIR}/PathFinderCli/build
-RUN cmake -DCMAKE_BUILD_TYPE=ultra ../
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DPATHFINDER_OPTIMIZE_ULTRA=ON -DSSERIALIZE_DISABLE_DTS2=ON ../
 RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
