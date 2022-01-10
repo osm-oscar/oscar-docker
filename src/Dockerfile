@@ -13,7 +13,7 @@ ENV IMAGE_DIR="${IMAGE_DIR}"
 ARG NUM_THREADS=4
 ENV NUM_THREADS="${NUM_THREADS:-4}"
 
-FROM Base AS BuildEnv
+FROM base AS buildenv
 RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
@@ -25,7 +25,7 @@ RUN apt-get update \
 	&& apt-get autoremove --yes \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}
 
-FROM Base AS RunEnv
+FROM base AS runenv
 RUN apt-get update \
 	&& apt-get -y upgrade \
 	&& apt-get install -y --no-install-recommends \
@@ -38,7 +38,7 @@ RUN apt-get update \
 	&& rm -rf /var/lib/{apt,dpkg,cache,log}
 
 #Install Oscar-create
-FROM BuildEnv AS OscarCreate
+FROM buildenv AS oscarcreate
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
@@ -65,7 +65,7 @@ RUN cp -a -L ${SRC_DIR}/oscar/data/configs/oscar-create/lists/* ${IMAGE_DIR}/etc
 RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-create/lists/
 
 #Install oscar-web
-FROM BuildEnv AS OscarWeb
+FROM buildenv AS oscarweb
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
@@ -90,7 +90,7 @@ RUN cp -a ${SRC_DIR}/oscar-web/website ${IMAGE_DIR}/var/www/oscar
 
 
 #Install OsmGraphCreator
-FROM BuildEnv AS OsmGraphCreator
+FROM buildenv AS osmgraphcreator
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/fmi-alg/OsmGraphCreator OsmGraphCreator
@@ -113,7 +113,7 @@ RUN cp -r ${SRC_DIR}/OsmGraphCreator/data/configs ${IMAGE_DIR}/etc/graph-creator
 
 
 #Install CHConstructor
-FROM BuildEnv AS CHConstructor
+FROM buildenv AS chconstructor
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
@@ -132,7 +132,7 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 
 
 #Install path-finder-cli
-FROM BuildEnv AS PathFinder
+FROM buildenv AS pathfinder
 
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/dbahrdt/path-finder-cli.git PathFinderCli
@@ -155,13 +155,14 @@ RUN chmod +x ${IMAGE_DIR}/usr/local/bin/path-finder-create
 #Final phase
 #We simply copy all stuff from ${IMAGE_DIR} of the previous images and add our scripts
 
-FROM RunEnv AS Final
+FROM runenv AS final
 
-COPY --from=OscarCreate ${IMAGE_DIR}/ /
-COPY --from=OscarWeb ${IMAGE_DIR}/ /
-COPY --from=OsmGraphCreator ${IMAGE_DIR}/ /
-COPY --from=CHConstructor ${IMAGE_DIR}/ /
-COPY --from=PathFinder ${IMAGE_DIR}/ /
+COPY --from=oscarcreate ${IMAGE_DIR}/ /
+COPY --from=oscarweb ${IMAGE_DIR}/ /
+COPY --from=osmgraphcreator ${IMAGE_DIR}/ /
+COPY --from=chconstructor ${IMAGE_DIR}/ /
+COPY --from=pathfinder ${IMAGE_DIR}/ /
+
 
 RUN ldconfig
 
