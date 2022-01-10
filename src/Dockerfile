@@ -123,7 +123,7 @@ RUN git -C ${SRC_DIR}/CHConstructor fetch \
 	&& git -C ${SRC_DIR}/CHConstructor submodule sync \
 	&& git -C ${SRC_DIR}/CHConstructor submodule update --init --recursive
 WORKDIR ${SRC_DIR}/CHConstructor/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release ../
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DLARGE_GRAPH=ON ../
 RUN make -j ${NUM_THREADS}
 
 ##Copy binaries
