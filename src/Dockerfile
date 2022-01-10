@@ -39,9 +39,9 @@ RUN apt-get update \
 FROM buildenv AS oscarcreate
 
 WORKDIR ${SRC_DIR}
-RUN git clone --recursive https://github.com/dbahrdt/oscar.git oscar
+RUN git clone --recursive https://github.com/osm-oscar/oscar.git oscar
 RUN git -C ${SRC_DIR}/oscar fetch \
-	&& git -C ${SRC_DIR}/oscar checkout 3f36fa969b9f11475b75319d2b00ac5de0b4df95 \
+	&& git -C ${SRC_DIR}/oscar checkout ce0ec04b65e893ca72b908bca681fb142d1d0bb0 \
 	&& git -C ${SRC_DIR}/oscar submodule sync \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
@@ -67,9 +67,9 @@ RUN cp -a  ${SRC_DIR}/oscar/data/configs/srclists/* ${IMAGE_DIR}/etc/oscar-creat
 FROM buildenv AS oscarweb
 
 WORKDIR ${SRC_DIR}
-RUN git clone --recursive https://github.com/dbahrdt/oscar-web.git oscar-web
+RUN git clone --recursive https://github.com/osm-oscar/oscar-web.git oscar-web
 RUN git -C ${SRC_DIR}/oscar-web fetch \
-	&& git -C ${SRC_DIR}/oscar-web checkout 1cd0a5a33c5cec467c8cea9aa657c84cf22a5d04 \
+	&& git -C ${SRC_DIR}/oscar-web checkout ec36f87d273579ab0b2459c05fcc35f21e328c8a \
 	&& git -C ${SRC_DIR}/oscar-web submodule sync \
 	&& git -C ${SRC_DIR}/oscar-web submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar-web/build
@@ -117,9 +117,9 @@ RUN cp -r ${SRC_DIR}/OsmGraphCreator/data/configs ${IMAGE_DIR}/etc/graph-creator
 FROM buildenv AS chconstructor
 
 WORKDIR ${SRC_DIR}
-RUN git clone --recursive https://github.com/chaot4/ch_constructor.git CHConstructor
+RUN git clone --recursive https://github.com/osm-oscar/ch_constructor.git CHConstructor
 RUN git -C ${SRC_DIR}/CHConstructor fetch \ 
-	&& git -C ${SRC_DIR}/CHConstructor checkout 05eb8df84b08b2c3f66ec1117d31d44f2e536eca \
+	&& git -C ${SRC_DIR}/CHConstructor checkout 8de181ac2ee3be2450b94650fef3736f435b9f23 \
 	&& git -C ${SRC_DIR}/CHConstructor submodule sync \
 	&& git -C ${SRC_DIR}/CHConstructor submodule update --init --recursive
 WORKDIR ${SRC_DIR}/CHConstructor/build
@@ -137,10 +137,10 @@ RUN strip ${IMAGE_DIR}/usr/local/bin/ch-constructor
 FROM buildenv AS pathfinder
 
 WORKDIR ${SRC_DIR}
-RUN git clone --recursive https://github.com/dbahrdt/path-finder-cli.git PathFinderCli
+RUN git clone --recursive https://github.com/osm-oscar/path-finder-cli.git PathFinderCli
 WORKDIR ${SRC_DIR}/PathFinderCli
 RUN git fetch \
-	&& git checkout 6c9cfbae52f6cdd65c3811facdfd2a6f4af94573 \
+	&& git checkout d2e8068b1fb2b7a716153f2728c7ea0a24c15259 \
 	&& git submodule sync \
 	&& git submodule update --init --recursive
 
