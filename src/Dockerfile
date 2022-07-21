@@ -29,7 +29,7 @@ RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		libz-dev libicu-dev libcairo-dev libprotobuf-dev libtbb-dev \
 		protobuf-compiler libcrypto++-dev libcgal-dev \
-		lighttpd cron curl python ca-certificates sudo \
+		lighttpd cron curl python ca-certificates sudo bzip2 \
 		cgdb \
 	&& apt-get clean autoclean \
 	&& apt-get autoremove --yes \
