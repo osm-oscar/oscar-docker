@@ -155,7 +155,7 @@ else
         #Compute graph
         echo "Extracting connected components"
         mkdir -p ${GRAPH_FILE} || die "Could not create directory for connected components"
-        graph-creator -g fmimaxspeedtext -t time -hs auto -ccs ${ROUTING_PRUNE_THRESHOLD} -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
+        graph-creator -g fmimaxspeedtext -t time -hs auto -cc size ${ROUTING_PRUNE_THRESHOLD} -c /etc/graph-creator/configs/car.cfg -o ${GRAPH_FILE}/ ${SOURCE_DIR}/data.osm.pbf || die "Failed to compute graph"
 
         #Compute ch graph and path finder data
         echo "Computing contraction hierarchy using ${CH_CONSTRUCTOR_NUM_THREADS} threads"
