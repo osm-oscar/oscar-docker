@@ -41,7 +41,7 @@ FROM buildenv AS oscarcreate
 WORKDIR ${SRC_DIR}
 RUN git clone --recursive https://github.com/osm-oscar/oscar.git oscar
 RUN git -C ${SRC_DIR}/oscar fetch \
-	&& git -C ${SRC_DIR}/oscar checkout ce0ec04b65e893ca72b908bca681fb142d1d0bb0 \
+	&& git -C ${SRC_DIR}/oscar checkout 6e6364f15887829ecf42305108b83de36d479630 \
 	&& git -C ${SRC_DIR}/oscar submodule sync \
 	&& git -C ${SRC_DIR}/oscar submodule update --init --recursive
 WORKDIR ${SRC_DIR}/oscar/build
